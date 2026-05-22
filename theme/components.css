@@ -1,0 +1,64 @@
+/* 3D Button Base Utility Classes */
+.btn-3d-shadow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 16px;
+}
+
+.btn-3d-front {
+  border-radius: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3D Card Selection Utilities */
+.card-3d {
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--color-border-gray);
+  border-bottom-color: #D1D5DB; /* Distinct shadow gray */
+  border-bottom-width: 5px;
+  background-color: var(--color-background);
+  border-radius: 16px;
+}
+
+.card-3d-selected {
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-dark); /* Accent shadow purple */
+  border-bottom-width: 5px;
+  background-color: rgba(108, 78, 245, 0.04); /* Lingua Purple transparent tint */
+  border-radius: 16px;
+}
+
+/* 3D Progress Bar Track & Fill Utilities */
+.progress-3d-track {
+  height: 16px;
+  background-color: var(--color-surface);
+  border-width: 1.5px;
+  border-style: solid;
+  border-color: var(--color-border-gray);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-3d-fill {
+  height: 100%;
+  border-radius: 9999px;
+  position: relative;
+}
+
+.progress-3d-gloss {
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  right: 6px;
+  height: 3.5px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+}
