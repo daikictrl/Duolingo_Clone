@@ -1,15 +1,8 @@
-:root {
+@theme {
   --font-sans: Poppins-Regular;
   --font-medium: Poppins-Medium;
   --font-semibold: Poppins-SemiBold;
   --font-bold: Poppins-Bold;
-}
-
-@theme {
-  --font-sans: var(--font-sans);
-  --font-medium: var(--font-medium);
-  --font-semibold: var(--font-semibold);
-  --font-bold: var(--font-bold);
 }
 
 /* Custom Typography Scale Utilities */
