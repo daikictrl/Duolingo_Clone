@@ -38,10 +38,9 @@ yarn-error.*
 
 app-example
 
-# generated native folders
 /ios
 /android
 
-# agent files
+# Agents and caches
 .agents/
-
+.gemini/

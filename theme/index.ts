@@ -1,4 +1,2 @@
-import { colors } from "./colors";
-import { typography } from "./typography";
-
-export { colors, typography };
+export * from "./colors";
+export * from "./typography";
