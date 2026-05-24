@@ -98,8 +98,8 @@ export default function SignUpScreen() {
       });
 
       if (signUpAttempt.status === "complete") {
-        posthog.capture("sign_up_completed");
         await setActive({ session: signUpAttempt.createdSessionId });
+        posthog.capture("sign_up_completed");
       } else {
         console.error("Sign-up attempt not complete:", signUpAttempt);
         setModalError("Sign-up is not complete. Please check the code.");
@@ -138,8 +138,8 @@ export default function SignUpScreen() {
         redirectUrl: Linking.createURL("/oauth-callback", { scheme: "duolingoclone" }),
       });
       if (createdSessionId) {
-        posthog.capture("sign_up_oauth_completed", { provider: "google" });
         await setActive({ session: createdSessionId });
+        posthog.capture("sign_up_oauth_completed", { provider: "google" });
       }
     } catch (err: unknown) {
       console.warn("Google login warning/error:", err);
@@ -159,8 +159,8 @@ export default function SignUpScreen() {
         redirectUrl: Linking.createURL("/oauth-callback", { scheme: "duolingoclone" }),
       });
       if (createdSessionId) {
-        posthog.capture("sign_up_oauth_completed", { provider: "apple" });
         await setActive({ session: createdSessionId });
+        posthog.capture("sign_up_oauth_completed", { provider: "apple" });
       }
     } catch (err: unknown) {
       console.warn("Apple login warning/error:", err);
