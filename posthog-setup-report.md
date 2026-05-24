@@ -1,7 +1,6 @@
-<wizard-report>
 # PostHog post-wizard report
 
-The wizard has completed a deep integration of PostHog analytics into the Vexora language learning app. The integration covers the full user acquisition funnel, authentication events, language selection, and in-app learning engagement. All events are captured using the `posthog-react-native` SDK via the `usePostHog()` hook, with a standalone client in `lib/posthog.ts` and screen tracking in the root layout.
+The wizard has completed a deep integration of PostHog analytics into the Duolingo Clone language learning app. The integration covers the full user acquisition funnel, authentication events, language selection, and in-app learning engagement. All events are captured using the `posthog-react-native` SDK via the `usePostHog()` hook, with a standalone client in `lib/posthog.ts` and screen tracking in the root layout.
 
 ## What was set up
 
@@ -28,15 +27,13 @@ The wizard has completed a deep integration of PostHog analytics into the Vexora
 
 We've built some insights and a dashboard for you to keep an eye on user behavior, based on the events we just instrumented:
 
-- [Analytics basics dashboard](/dashboard/1624165)
-- [Acquisition Funnel](/insights/KVD5Pga4) — full user journey from onboarding to first lesson
-- [Daily Sign-ups](/insights/862Aqiz6) — email vs OAuth new users over time
-- [Lessons Completed per Day](/insights/IsXP6yfe) — daily learning engagement
-- [Language Selection Rate](/insights/XW8Nvysy) — sign-up to language selection churn indicator
-- [Continue Learning Taps](/insights/yfQvmsyy) — home screen re-engagement metric
+- [Analytics basics dashboard](https://app.posthog.com/dashboard/1624165)
+- [Acquisition Funnel](https://app.posthog.com/insights/KVD5Pga4) — full user journey from onboarding to first lesson
+- [Daily Sign-ups](https://app.posthog.com/insights/862Aqiz6) — email vs OAuth new users over time
+- [Lessons Completed per Day](https://app.posthog.com/insights/IsXP6yfe) — daily learning engagement
+- [Language Selection Rate](https://app.posthog.com/insights/XW8Nvysy) — sign-up to language selection churn indicator
+- [Continue Learning Taps](https://app.posthog.com/insights/yfQvmsyy) — home screen re-engagement metric
 
 ### Agent skill
 
 We've left an agent skill folder in your project. You can use this context for further agent development when using Claude Code. This will help ensure the model provides the most up-to-date approaches for integrating PostHog.
-
-</wizard-report>
