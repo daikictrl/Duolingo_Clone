@@ -56,13 +56,19 @@ export default function SignUpScreen() {
 
   const handleSignUp = async () => {
     if (!signUp) return;
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    if (!trimmedEmail || !trimmedPassword) {
+      setErrorMsg("Please enter a valid email and password.");
+      return;
+    }
     setErrorMsg("");
     setIsLoading(true);
 
     try {
       const signUpAttempt = await signUp.create({
-        emailAddress: email,
-        password,
+        emailAddress: trimmedEmail,
+        password: trimmedPassword,
       });
 
       await signUpAttempt.prepareEmailAddressVerification({
@@ -118,8 +124,9 @@ export default function SignUpScreen() {
   };
 
   const handleGoogleOAuth = async () => {
-    if (!setActive) return;
+    if (!setActive || isLoading) return;
     setErrorMsg("");
+    setIsLoading(true);
     try {
       const { createdSessionId } = await startSSOFlow({
         strategy: "oauth_google",
@@ -131,14 +138,15 @@ export default function SignUpScreen() {
     } catch (err: unknown) {
       console.warn("Google login warning/error:", err);
       setErrorMsg(getClerkErrorMessage(err, "Google login failed."));
+    } finally {
+      setIsLoading(false);
     }
   };
 
-
-
   const handleAppleOAuth = async () => {
-    if (!setActive) return;
+    if (!setActive || isLoading) return;
     setErrorMsg("");
+    setIsLoading(true);
     try {
       const { createdSessionId } = await startSSOFlow({
         strategy: "oauth_apple",
@@ -150,6 +158,8 @@ export default function SignUpScreen() {
     } catch (err: unknown) {
       console.warn("Apple login warning/error:", err);
       setErrorMsg(getClerkErrorMessage(err, "Apple login failed."));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -329,7 +339,7 @@ export default function SignUpScreen() {
         onClose={() => setIsModalVisible(false)}
         onVerify={handleVerifyCode}
         onResend={handleResendCode}
-        email={email || "alex@gmail.com"}
+        email={email}
         error={modalError}
       />
     </SafeAreaView>
