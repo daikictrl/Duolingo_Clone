@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { StyleSheet, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Pressable, ScrollView } from "@/components/tw";
@@ -16,6 +16,10 @@ export default function LanguageSelectionScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(selectedLanguageId);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    setSelectedId(selectedLanguageId);
+  }, [selectedLanguageId]);
 
   const filteredLanguages = languages.filter((lang) =>
     lang.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
