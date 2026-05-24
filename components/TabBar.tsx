@@ -102,6 +102,10 @@ const TabItem = ({
       onLongPress={onLongPress}
       activeOpacity={0.9}
       style={styles.tabButton}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isFocused }}
+      accessibilityLabel={label}
+      testID={`tab-${routeName}`}
     >
       <View style={styles.tabItemContainer}>
         {/* Animated Icon */}
