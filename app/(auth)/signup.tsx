@@ -19,6 +19,7 @@ import { useAuth, useSSO } from "@clerk/expo";
 import { useSignUp } from "@clerk/expo/legacy";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
+import { usePostHog } from "posthog-react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -50,6 +51,7 @@ export default function SignUpScreen() {
 
   const { startSSOFlow } = useSSO();
   const { height } = useWindowDimensions();
+  const posthog = usePostHog();
 
   const spacingClass = height < 780 ? "mb-3" : "mb-6";
   const dividerMarginClass = height < 780 ? "my-2" : "my-4";
@@ -64,6 +66,8 @@ export default function SignUpScreen() {
     }
     setErrorMsg("");
     setIsLoading(true);
+
+    posthog.capture("sign_up_submitted");
 
     try {
       const signUpAttempt = await signUp.create({
@@ -95,6 +99,7 @@ export default function SignUpScreen() {
 
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
+        posthog.capture("sign_up_completed");
       } else {
         console.error("Sign-up attempt not complete:", signUpAttempt);
         setModalError("Sign-up is not complete. Please check the code.");
@@ -134,6 +139,7 @@ export default function SignUpScreen() {
       });
       if (createdSessionId) {
         await setActive({ session: createdSessionId });
+        posthog.capture("sign_up_oauth_completed", { provider: "google" });
       }
     } catch (err: unknown) {
       console.warn("Google login warning/error:", err);
@@ -154,6 +160,7 @@ export default function SignUpScreen() {
       });
       if (createdSessionId) {
         await setActive({ session: createdSessionId });
+        posthog.capture("sign_up_oauth_completed", { provider: "apple" });
       }
     } catch (err: unknown) {
       console.warn("Apple login warning/error:", err);
@@ -291,6 +298,7 @@ export default function SignUpScreen() {
               styles.socialButton,
               pressed && styles.socialButtonPressed,
             ]}
+            testID="google-sign-up-button"
           >
             <Ionicons
               name="logo-google"
@@ -309,6 +317,7 @@ export default function SignUpScreen() {
               styles.socialButton,
               pressed && styles.socialButtonPressed,
             ]}
+            testID="apple-sign-up-button"
           >
             <Ionicons
               name="logo-apple"

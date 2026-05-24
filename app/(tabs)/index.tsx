@@ -13,11 +13,13 @@ import { getLessonsByUnit } from "@/data/lessons";
 import { useActiveLesson } from "@/hooks/useActiveLesson";
 import { images } from "@/constants/images";
 import { COLORS } from "@/theme/colors";
+import { usePostHog } from "posthog-react-native";
 
 export default function HomeTab() {
   const router = useRouter();
   const { user } = useUser();
   const firstName = user?.firstName || "Friend";
+  const posthog = usePostHog();
 
   const {
     selectedLanguageId,
@@ -60,8 +62,25 @@ export default function HomeTab() {
 
   const handleLessonPress = () => {
     if (activeLesson) {
+      const wasCompleted = isActiveCompleted;
       toggleLessonCompletion(activeLesson.id, activeLesson.xp);
+      if (!wasCompleted) {
+        posthog.capture("lesson_completed", {
+          lesson_id: activeLesson.id,
+          lesson_title: activeLesson.title,
+          xp_earned: activeLesson.xp,
+          language_id: selectedLanguageId,
+        });
+      }
     }
+  };
+
+  const handleContinueLearning = () => {
+    posthog.capture("continue_learning_tapped", {
+      language_id: selectedLanguageId,
+      unit_title: activeUnit?.title ?? null,
+    });
+    router.push("/learn");
   };
 
   return (
@@ -84,7 +103,7 @@ export default function HomeTab() {
           ) : (
             <View className="w-10 h-10 rounded-full bg-surface border border-border-gray" />
           )}
-          
+
           {/* Greeting text */}
           <Text
             className="text-h4 text-text-primary font-bold flex-1"
@@ -136,18 +155,18 @@ export default function HomeTab() {
             <Text className="text-h3 text-text-primary font-bold">
               {progressXp} <Text className="text-body-md text-text-secondary font-medium">/ {dailyGoalXp} XP</Text>
             </Text>
-            
+
             {/* 3D Progress Bar */}
             <View className="progress-3d-track mt-3 bg-gray-200">
-              <View 
-                style={[styles.progressFill, { width: `${progressPercentage}%` }]} 
+              <View
+                style={[styles.progressFill, { width: `${progressPercentage}%` }]}
                 className="progress-3d-fill bg-streak"
               >
                 <View className="progress-3d-gloss" />
               </View>
             </View>
           </View>
-          
+
           {/* Treasure chest graphic */}
           <Image
             source={images.treasure}
@@ -158,8 +177,9 @@ export default function HomeTab() {
 
         {/* Continue Learning Card */}
         <Pressable
-          onPress={() => router.push("/learn")}
+          onPress={handleContinueLearning}
           className="mx-6 mt-6 p-5 rounded-2xl bg-primary border-2 border-primary-dark border-b-[5px] flex-row items-center justify-between"
+          testID="continue-learning-card"
         >
           <View className="flex-1 pr-3">
             <Text className="text-caption text-white/70 uppercase font-bold tracking-widest mb-1">
@@ -171,10 +191,10 @@ export default function HomeTab() {
             <Text className="text-body-sm text-white/80 leading-relaxed mb-4" numberOfLines={2}>
               {activeUnit?.description || "Master new vocabulary and speak confidently."}
             </Text>
-            
+
             {/* White 3D styled button inside the card */}
-            <View 
-              style={styles.continueButton} 
+            <View
+              style={styles.continueButton}
               className="bg-white px-5 py-2.5 rounded-xl border border-transparent border-b-4 border-b-gray-300 self-start active:translate-y-0.5 active:border-b-2"
             >
               <Text className="text-primary font-bold text-body-md">Continue</Text>
@@ -203,6 +223,7 @@ export default function HomeTab() {
           <Pressable
             onPress={handleLessonPress}
             className="flex-row items-center p-4 bg-white border border-border-gray rounded-2xl mx-6 active:bg-gray-50"
+            testID="lesson-item"
           >
             {/* Icon */}
             <View className="w-12 h-12 rounded-xl bg-primary/10 justify-center items-center mr-4">

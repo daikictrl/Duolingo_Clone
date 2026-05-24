@@ -1,12 +1,14 @@
 import "../global.css";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFonts } from "expo-font";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, useRouter, useSegments, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { ActivityIndicator, View } from "react-native";
 import { useLearningStore } from "@/store/learningStore";
+import { PostHogProvider, usePostHog } from "posthog-react-native";
+import { posthog } from "@/lib/posthog";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -20,11 +22,29 @@ if (!publishableKey) {
 }
 
 function InitialLayout() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, userId } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const selectedLanguageId = useLearningStore((state) => state.selectedLanguageId);
   const _hasHydrated = useLearningStore((state) => state._hasHydrated);
+  const ph = usePostHog();
+
+  // Identify the user in PostHog when they sign in, and reset on sign out
+  useEffect(() => {
+    if (isSignedIn && userId) {
+      if (ph) {
+        ph.identify(userId, {
+          $set_once: {
+            first_sign_in_date: new Date().toISOString(),
+          },
+        });
+      }
+    } else {
+      if (ph) {
+        ph.reset();
+      }
+    }
+  }, [isSignedIn, userId, ph]);
 
   useEffect(() => {
     if (!isLoaded || !_hasHydrated) return;
@@ -74,6 +94,21 @@ function InitialLayout() {
   );
 }
 
+function ScreenTracker() {
+  const pathname = usePathname();
+  const previousPathname = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (previousPathname.current !== pathname) {
+      posthog.screen(pathname, {
+        previous_screen: previousPathname.current ?? null,
+      });
+      previousPathname.current = pathname;
+    }
+  }, [pathname]);
+
+  return null;
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -94,10 +129,20 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <ClerkLoaded>
-        <InitialLayout />
-      </ClerkLoaded>
-    </ClerkProvider>
+    <PostHogProvider
+      client={posthog}
+      autocapture={{
+        captureScreens: false,
+        captureTouches: true,
+        propsToCapture: ["testID"],
+      }}
+    >
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <ClerkLoaded>
+          <ScreenTracker />
+          <InitialLayout />
+        </ClerkLoaded>
+      </ClerkProvider>
+    </PostHogProvider>
   );
 }
