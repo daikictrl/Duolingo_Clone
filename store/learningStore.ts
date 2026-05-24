@@ -11,6 +11,7 @@ interface LearningState {
   addXp: (amount: number) => void;
   setStreak: (count: number) => void;
   completeLesson: (lessonId: string, xpReward?: number) => void;
+  toggleLessonCompletion: (lessonId: string, xpReward?: number) => void;
   resetProgress: () => void;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
@@ -30,6 +31,19 @@ export const useLearningStore = create<LearningState>()(
       completeLesson: (lessonId, xpReward = 10) => set((state) => {
         if (state.completedLessonIds.includes(lessonId)) {
           return {}; // already completed
+        }
+        return {
+          completedLessonIds: [...state.completedLessonIds, lessonId],
+          xp: state.xp + xpReward
+        };
+      }),
+      toggleLessonCompletion: (lessonId, xpReward = 10) => set((state) => {
+        const isCompleted = state.completedLessonIds.includes(lessonId);
+        if (isCompleted) {
+          return {
+            completedLessonIds: state.completedLessonIds.filter((id) => id !== lessonId),
+            xp: Math.max(0, state.xp - xpReward),
+          };
         }
         return {
           completedLessonIds: [...state.completedLessonIds, lessonId],

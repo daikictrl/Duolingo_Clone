@@ -10,6 +10,7 @@ import { useLearningStore } from "@/store/learningStore";
 import { getLanguageById } from "@/data/languages";
 import { getUnitsByLanguage } from "@/data/units";
 import { getLessonsByUnit } from "@/data/lessons";
+import { useActiveLesson } from "@/hooks/useActiveLesson";
 import { images } from "@/constants/images";
 import { COLORS } from "@/theme/colors";
 
@@ -22,40 +23,18 @@ export default function HomeTab() {
     selectedLanguageId,
     xp,
     streak,
-    completedLessonIds,
     addXp,
-    completeLesson,
+    toggleLessonCompletion,
     resetProgress,
   } = useLearningStore();
 
   const currentLanguage = selectedLanguageId ? getLanguageById(selectedLanguageId) : null;
 
   // Determine active unit and active lesson based on completed lessons
-  const units = selectedLanguageId ? getUnitsByLanguage(selectedLanguageId) : [];
-  let activeUnit = units[0];
-  let activeLesson = null;
-
-  if (selectedLanguageId) {
-    for (const unit of units) {
-      const unitLessons = getLessonsByUnit(unit.id);
-      const incomplete = unitLessons.find((lesson) => !completedLessonIds.includes(lesson.id));
-      if (incomplete) {
-        activeUnit = unit;
-        activeLesson = incomplete;
-        break;
-      }
-    }
-
-    if (!activeLesson && units.length > 0) {
-      // If all lessons completed, default to the last lesson of the last unit
-      const lastUnit = units[units.length - 1];
-      const unitLessons = getLessonsByUnit(lastUnit.id);
-      if (unitLessons.length > 0) {
-        activeUnit = lastUnit;
-        activeLesson = unitLessons[unitLessons.length - 1];
-      }
-    }
-  }
+  const { activeUnit, activeLesson, isActiveCompleted } = useActiveLesson(
+    getUnitsByLanguage,
+    getLessonsByUnit
+  );
 
   // Get dynamic greeting based on selected language
   const getGreeting = (langId: string | null) => {
@@ -81,16 +60,7 @@ export default function HomeTab() {
 
   const handleLessonPress = () => {
     if (activeLesson) {
-      const isCompleted = completedLessonIds.includes(activeLesson.id);
-      if (isCompleted) {
-        // Toggle incomplete (dev testing friendly)
-        useLearningStore.setState((state) => ({
-          completedLessonIds: state.completedLessonIds.filter((id) => id !== activeLesson.id),
-          xp: Math.max(0, state.xp - activeLesson.xp),
-        }));
-      } else {
-        completeLesson(activeLesson.id, activeLesson.xp);
-      }
+      toggleLessonCompletion(activeLesson.id, activeLesson.xp);
     }
   };
 
@@ -249,7 +219,7 @@ export default function HomeTab() {
             </View>
             {/* Status marker */}
             <View className="ml-2">
-              {activeLesson && completedLessonIds.includes(activeLesson.id) ? (
+              {isActiveCompleted ? (
                 <Ionicons name="checkmark-circle" size={26} color={COLORS.success} />
               ) : (
                 <View className="w-6 h-6 rounded-full border-2 border-border-gray bg-white" />
