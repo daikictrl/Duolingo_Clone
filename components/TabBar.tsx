@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, ComponentProps } from "react";
 import { View, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from "react-native";
 import { Text } from "@/components/tw";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,17 +12,13 @@ import Animated, {
 import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/theme/colors";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { RouteProp, ParamListBase } from "@react-navigation/native";
 
 const circleSize = 48;
 
-interface TabBarProps {
-  state: any;
-  descriptors: any;
-  navigation: any;
-}
-
 // Icon mappings based on route name
-const getIconName = (routeKey: string): string => {
+const getIconName = (routeKey: string): ComponentProps<typeof Ionicons>["name"] => {
   switch (routeKey) {
     case "index":
       return "home";
@@ -98,7 +94,7 @@ const TabItem = ({
   });
 
   const baseIconName = getIconName(routeName);
-  const iconName = (isFocused ? baseIconName : `${baseIconName}-outline`) as any;
+  const iconName = (isFocused ? baseIconName : `${baseIconName}-outline`) as ComponentProps<typeof Ionicons>["name"];
 
   return (
     <TouchableOpacity
@@ -128,7 +124,7 @@ const TabItem = ({
   );
 };
 
-export function TabBar({ state, descriptors, navigation }: TabBarProps) {
+export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { width: screenWidth } = useWindowDimensions();
   const numTabs = state.routes.length || 5;
   const tabWidth = screenWidth / numTabs;
@@ -179,7 +175,7 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
       />
 
       {/* Tab Buttons */}
-      {state.routes.map((route: any, index: number) => {
+      {state.routes.map((route: RouteProp<ParamListBase, string>, index: number) => {
         const isFocused = state.index === index;
         const label = getLabel(route.name);
 
