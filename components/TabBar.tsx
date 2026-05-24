@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet, TouchableOpacity, Dimensions, Platform } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from "react-native";
 import { Text } from "@/components/tw";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -13,11 +13,7 @@ import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/theme/colors";
 
-const { width: screenWidth } = Dimensions.get("window");
 const circleSize = 48;
-const numTabs = 5;
-const tabWidth = screenWidth / numTabs;
-const circleLeftOffset = (tabWidth - circleSize) / 2;
 
 interface TabBarProps {
   state: any;
@@ -133,17 +129,22 @@ const TabItem = ({
 };
 
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
+  const { width: screenWidth } = useWindowDimensions();
+  const numTabs = state.routes.length || 5;
+  const tabWidth = screenWidth / numTabs;
+  const circleLeftOffset = (tabWidth - circleSize) / 2;
+
   const insets = useSafeAreaInsets();
   const translateX = useSharedValue(state.index * tabWidth + circleLeftOffset);
 
-  // Sync translation when selected index changes
+  // Sync translation when selected index or layout dimensions change
   useEffect(() => {
     const targetX = state.index * tabWidth + circleLeftOffset;
     translateX.value = withTiming(targetX, {
       duration: 200,
       easing: Easing.linear,
     });
-  }, [state.index, translateX]);
+  }, [state.index, tabWidth, circleLeftOffset, translateX]);
 
   const animatedCircleStyle = useAnimatedStyle(() => {
     return {
