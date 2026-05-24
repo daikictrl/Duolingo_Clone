@@ -8,13 +8,22 @@ import { images } from "@/constants/images";
 import { COLORS } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useAuth } from "@clerk/expo";
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { isSignedIn, signOut } = useAuth();
 
-  const handleGetStarted = () => {
-    // Navigate to index or show placeholder. In the future this will go to Auth/Language Selection.
-    router.replace("/");
+  const handleGetStarted = async () => {
+    try {
+      if (isSignedIn) {
+        await signOut();
+      }
+    } catch (err) {
+      console.warn("Failed to sign out on onboarding:", err);
+    }
+    // Navigate to Sign Up screen
+    router.push("/signup");
   };
 
   return (
@@ -48,14 +57,14 @@ export default function OnboardingScreen() {
           {/* Illustration Container */}
           <View className="relative w-full h-[260px] justify-center items-center">
             {/* Top-Right Speech Bubble ("¡Hola!") */}
-            <View className="absolute -top-2 right-[8%] bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-2xl shadow-sm z-10">
+            <View className="absolute -top-2 right-[8%] bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-2xl shadow-sm z-10 will-change-variable">
               <Text className="text-body-sm font-bold text-indigo-600">¡Hola!</Text>
               {/* Arrow pointer pointing down-left to the mascot */}
               <View className="absolute -bottom-1.5 left-5 w-3 h-3 bg-indigo-50 border-r border-b border-indigo-200 rotate-45" />
             </View>
 
             {/* Left Speech Bubble ("Hello!") */}
-            <View className="absolute top-[35%] left-[6%] bg-sky-50 border border-sky-200 px-3.5 py-1.5 rounded-2xl shadow-sm z-10">
+            <View className="absolute top-[35%] left-[6%] bg-sky-50 border border-sky-200 px-3.5 py-1.5 rounded-2xl shadow-sm z-10 will-change-variable">
               <Text className="text-body-sm font-bold text-sky-700">Hello!</Text>
               {/* Arrow pointer pointing down-right to the mascot */}
               <View className="absolute -bottom-1.5 right-6 w-3 h-3 bg-sky-50 border-r border-b border-sky-200 rotate-45" />
@@ -69,7 +78,7 @@ export default function OnboardingScreen() {
             />
 
             {/* Bottom-Right Speech Bubble ("你好!") */}
-            <View className="absolute bottom-[10%] right-[8%] bg-orange-50 border border-orange-200 px-3.5 py-1.5 rounded-2xl shadow-sm z-10">
+            <View className="absolute bottom-[10%] right-[8%] bg-orange-50 border border-orange-200 px-3.5 py-1.5 rounded-2xl shadow-sm z-10 will-change-variable">
               <Text className="text-body-sm font-bold text-orange-600">你好!</Text>
               {/* Arrow pointer pointing down-left to the mascot */}
               <View className="absolute -bottom-1.5 left-5 w-3 h-3 bg-orange-50 border-r border-b border-orange-200 rotate-45" />
