@@ -46,7 +46,12 @@ export default function LanguageSelectionScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Custom Header */}
       <View className="flex-row items-center justify-between px-6 py-4 border-b border-border-gray bg-white">
-        <Pressable onPress={handleBack} className="p-1">
+        <Pressable
+          onPress={handleBack}
+          className="p-1"
+          accessibilityLabel="Back"
+          accessibilityRole="button"
+        >
           <Ionicons name="chevron-back" size={24} color="#0D132B" />
         </Pressable>
         <Text className="text-h3 text-text-primary text-center flex-1 mr-6">
@@ -77,6 +82,8 @@ export default function LanguageSelectionScreen() {
                 inputRef.current?.focus();
               }}
               className="p-1"
+              accessibilityLabel="Clear search"
+              accessibilityRole="button"
             >
               <Ionicons name="close-circle" size={18} color="#6B7280" />
             </Pressable>
