@@ -85,7 +85,13 @@ export const VerificationModal = ({
             {/* Close Button */}
             <Pressable
               onPress={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full active:bg-gray-100"
+              accessibilityLabel="Close verification dialog"
+              accessibilityRole="button"
+              accessibilityHint="Closes the verification screen and returns to the authentication form"
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && styles.closeButtonPressed,
+              ]}
             >
               <Ionicons name="close" size={24} color={COLORS.textPrimary} />
             </Pressable>
@@ -115,12 +121,17 @@ export const VerificationModal = ({
               onBlur={() => setIsInputFocused(false)}
               style={styles.hiddenInput}
               caretHidden={true}
+              accessibilityLabel="One-time passcode input"
+              accessibilityHint="Enter the 6-digit code sent to your device"
             />
 
             {/* Styled Code Box Grid */}
             <RNPressable
               onPress={focusInput}
               style={styles.boxesContainer}
+              accessibilityLabel="Verification code digits"
+              accessibilityHint="Double tap to focus and type the 6-digit verification code"
+              accessibilityRole="button"
             >
               {digits.map((_, index) => {
                 const char = code[index] || "";
@@ -167,7 +178,13 @@ export const VerificationModal = ({
                     focusInput();
                   }
                 }}
-                className="mt-2 px-4 py-1.5 rounded-xl active:bg-indigo-50"
+                accessibilityLabel="Resend code"
+                accessibilityRole="button"
+                accessibilityHint="Sends a new 6-digit verification code to your email"
+                style={({ pressed }) => [
+                  styles.resendButton,
+                  pressed && styles.resendButtonPressed,
+                ]}
               >
                 <Text className="text-primary font-semibold text-body-sm">
                   Resend Code
@@ -229,5 +246,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    padding: 8,
+    borderRadius: 9999,
+  },
+  closeButtonPressed: {
+    backgroundColor: "#f3f4f6", // gray-100
+  },
+  resendButton: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  resendButtonPressed: {
+    backgroundColor: "#eef2ff", // indigo-50
   },
 });
