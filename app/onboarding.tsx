@@ -9,12 +9,16 @@ import { COLORS } from "@/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/expo";
+import { usePostHog } from "posthog-react-native";
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const { isSignedIn, signOut } = useAuth();
+  const posthog = usePostHog();
 
   const handleGetStarted = async () => {
+    posthog.capture("onboarding_get_started_tapped");
+
     try {
       if (isSignedIn) {
         await signOut();

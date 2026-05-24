@@ -9,6 +9,7 @@ import { languages } from "@/data/languages";
 import { useLearningStore } from "@/store/learningStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 
 export default function LanguageSelectionScreen() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function LanguageSelectionScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(selectedLanguageId);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<TextInput>(null);
+  const posthog = usePostHog();
 
   useEffect(() => {
     setSelectedId(selectedLanguageId);
@@ -28,6 +30,11 @@ export default function LanguageSelectionScreen() {
 
   const handleConfirm = () => {
     if (selectedId) {
+      const selectedLang = languages.find((l) => l.id === selectedId);
+      posthog.capture("language_selected", {
+        language_id: selectedId,
+        language_name: selectedLang?.name ?? null,
+      });
       setSelectedLanguageId(selectedId);
       // Navigate back to the home screen (/)
       router.replace("/");

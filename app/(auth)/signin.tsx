@@ -19,6 +19,7 @@ import { useAuth, useSSO } from "@clerk/expo";
 import { useSignIn } from "@clerk/expo/legacy";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
+import { usePostHog } from "posthog-react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -53,6 +54,7 @@ export default function SignInScreen() {
 
   const { startSSOFlow } = useSSO();
   const { height } = useWindowDimensions();
+  const posthog = usePostHog();
 
   const spacingClass = height < 780 ? "mb-3" : "mb-6";
   const dividerMarginClass = height < 780 ? "my-2" : "my-4";
@@ -66,6 +68,8 @@ export default function SignInScreen() {
     }
     setErrorMsg("");
     setIsLoading(true);
+
+    posthog.capture("sign_in_submitted");
 
     try {
       const signInAttempt = await signIn.create({
@@ -105,6 +109,7 @@ export default function SignInScreen() {
       });
 
       if (signInAttempt.status === "complete") {
+        posthog.capture("sign_in_completed");
         await setActive({ session: signInAttempt.createdSessionId });
       } else {
         console.error("Sign-in attempt not complete:", signInAttempt);
@@ -153,6 +158,7 @@ export default function SignInScreen() {
         redirectUrl: Linking.createURL("/oauth-callback", { scheme: "duolingoclone" }),
       });
       if (createdSessionId) {
+        posthog.capture("sign_in_oauth_completed", { provider: "google" });
         await setActive({ session: createdSessionId });
       }
     } catch (err: unknown) {
@@ -173,6 +179,7 @@ export default function SignInScreen() {
         redirectUrl: Linking.createURL("/oauth-callback", { scheme: "duolingoclone" }),
       });
       if (createdSessionId) {
+        posthog.capture("sign_in_oauth_completed", { provider: "apple" });
         await setActive({ session: createdSessionId });
       }
     } catch (err: unknown) {
@@ -282,6 +289,7 @@ export default function SignInScreen() {
               styles.socialButton,
               pressed && styles.socialButtonPressed,
             ]}
+            testID="google-sign-in-button"
           >
             <Ionicons
               name="logo-google"
@@ -300,6 +308,7 @@ export default function SignInScreen() {
               styles.socialButton,
               pressed && styles.socialButtonPressed,
             ]}
+            testID="apple-sign-in-button"
           >
             <Ionicons
               name="logo-apple"
