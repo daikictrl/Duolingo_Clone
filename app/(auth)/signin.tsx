@@ -59,12 +59,17 @@ export default function SignInScreen() {
 
   const handleSignIn = async () => {
     if (!signIn) return;
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
     setErrorMsg("");
     setIsLoading(true);
 
     try {
       const signInAttempt = await signIn.create({
-        identifier: email,
+        identifier: trimmedEmail,
       });
 
       const emailCodeFactor = signInAttempt.supportedFirstFactors?.find(
@@ -325,7 +330,7 @@ export default function SignInScreen() {
         onClose={() => setIsModalVisible(false)}
         onVerify={handleVerifyCode}
         onResend={handleResendCode}
-        email={email || "alex@gmail.com"}
+        email={email}
         error={modalError}
       />
     </SafeAreaView>
