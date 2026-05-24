@@ -1,7 +1,7 @@
 import "../global.css";
 import { useEffect, useRef } from "react";
 import { useFonts } from "expo-font";
-import { Stack, useRouter, useSegments, usePathname, useGlobalSearchParams } from "expo-router";
+import { Stack, useRouter, useSegments, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
@@ -96,18 +96,16 @@ function InitialLayout() {
 
 function ScreenTracker() {
   const pathname = usePathname();
-  const params = useGlobalSearchParams();
   const previousPathname = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (previousPathname.current !== pathname) {
       posthog.screen(pathname, {
         previous_screen: previousPathname.current ?? null,
-        ...params,
       });
       previousPathname.current = pathname;
     }
-  }, [pathname, params]);
+  }, [pathname]);
 
   return null;
 }
