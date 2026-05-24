@@ -1,11 +1,60 @@
 import "../global.css";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/expo";
+import { tokenCache } from "@clerk/expo/token-cache";
+import { ActivityIndicator, View } from "react-native";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+if (!publishableKey) {
+  throw new Error(
+    "Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Please add it to your .env file."
+  );
+}
+
+function InitialLayout() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const isRoot = !segments[0];
+    const inAuthGroup = segments[0] === "(auth)";
+    const inOnboarding = segments[0] === "onboarding";
+
+    if (!isSignedIn && !inAuthGroup && !inOnboarding && !isRoot) {
+      // Redirect to onboarding if not signed in and trying to access protected content
+      router.replace("/onboarding");
+    } else if (isSignedIn && inAuthGroup) {
+      // Redirect to home if signed in and trying to access signin/signup page
+      router.replace("/");
+    }
+  }, [isSignedIn, isLoaded, segments, router]);
+
+  if (!isLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#FFFFFF" }}>
+        <ActivityIndicator size="large" color="#6C4EF5" />
+      </View>
+    );
+  }
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -26,10 +75,10 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <ClerkLoaded>
+        <InitialLayout />
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }
