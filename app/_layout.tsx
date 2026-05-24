@@ -24,6 +24,8 @@ function InitialLayout() {
   const router = useRouter();
 
   useEffect(() => {
+    // Redirection bypassed temporarily as requested by the user
+    /*
     if (!isLoaded) return;
 
     const inAuthGroup = segments[0] === "(auth)";
@@ -36,6 +38,7 @@ function InitialLayout() {
       // Redirect to home if signed in and trying to access signin/signup page
       router.replace("/");
     }
+    */
   }, [isSignedIn, isLoaded, segments, router]);
 
   if (!isLoaded) {

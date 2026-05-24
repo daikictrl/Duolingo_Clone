@@ -26,6 +26,14 @@ export default function Index() {
         <Button3D
           variant="primary"
           size="md"
+          onPress={() => router.push("/language-selection" as Href)}
+        >
+          Choose a Language
+        </Button3D>
+
+        <Button3D
+          variant="secondary"
+          size="md"
           onPress={() => router.push("/onboarding" as Href)}
         >
           Open Onboarding
