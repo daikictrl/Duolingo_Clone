@@ -7,6 +7,7 @@ import { ClerkProvider, ClerkLoaded, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { ActivityIndicator, View } from "react-native";
 import { useLearningStore } from "@/store/learningStore";
+import { PostHogProvider } from "posthog-react-native";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -94,10 +95,15 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <ClerkLoaded>
-        <InitialLayout />
-      </ClerkLoaded>
-    </ClerkProvider>
+    <PostHogProvider
+      apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
+      options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+    >
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <ClerkLoaded>
+          <InitialLayout />
+        </ClerkLoaded>
+      </ClerkProvider>
+    </PostHogProvider>
   );
 }
