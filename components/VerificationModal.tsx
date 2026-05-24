@@ -15,7 +15,7 @@ interface VerificationModalProps {
   visible: boolean;
   onClose: () => void;
   onVerify: (code: string) => void;
-  email: string;
+  email?: string;
   onResend?: () => void;
   error?: string;
 }

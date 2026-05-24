@@ -35,6 +35,7 @@ export default function LanguageSelectionScreen() {
   };
 
   const handleBack = () => {
+    if (!selectedLanguageId) return;
     if (router.canGoBack()) {
       router.back();
     } else {
@@ -46,14 +47,18 @@ export default function LanguageSelectionScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Custom Header */}
       <View className="flex-row items-center justify-between px-6 py-4 border-b border-border-gray bg-white">
-        <Pressable
-          onPress={handleBack}
-          className="p-1"
-          accessibilityLabel="Back"
-          accessibilityRole="button"
-        >
-          <Ionicons name="chevron-back" size={24} color="#0D132B" />
-        </Pressable>
+        {selectedLanguageId ? (
+          <Pressable
+            onPress={handleBack}
+            className="p-1"
+            accessibilityLabel="Back"
+            accessibilityRole="button"
+          >
+            <Ionicons name="chevron-back" size={24} color="#0D132B" />
+          </Pressable>
+        ) : (
+          <View className="w-8 h-8" />
+        )}
         <Text className="text-h3 text-text-primary text-center flex-1 mr-6">
           Choose a language
         </Text>
