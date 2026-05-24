@@ -26,11 +26,10 @@ function InitialLayout() {
   useEffect(() => {
     if (!isLoaded) return;
 
-    const isRoot = !segments[0];
     const inAuthGroup = segments[0] === "(auth)";
     const inOnboarding = segments[0] === "onboarding";
 
-    if (!isSignedIn && !inAuthGroup && !inOnboarding && !isRoot) {
+    if (!isSignedIn && !inAuthGroup && !inOnboarding) {
       // Redirect to onboarding if not signed in and trying to access protected content
       router.replace("/onboarding");
     } else if (isSignedIn && inAuthGroup) {
