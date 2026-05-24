@@ -277,28 +277,30 @@ export default function HomeTab() {
         </View>
 
         {/* Developer Utilities Section */}
-        <View className="mx-6 mt-8 mb-10 p-5 bg-surface border border-border-gray rounded-2xl items-center">
-          <Text className="text-body-md text-text-secondary font-bold text-center mb-3">
-            Developer Utilities
-          </Text>
-          <View className="flex-row gap-3 w-full justify-between">
-            <Pressable
-              onPress={() => addXp(5)}
-              className="flex-1 bg-white border border-border-gray py-2.5 px-3 rounded-xl items-center active:bg-gray-50"
-            >
-              <Text className="text-text-primary text-body-sm font-bold">+5 XP</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                resetProgress();
-                router.replace("/onboarding");
-              }}
-              className="flex-1 bg-white border border-error py-2.5 px-3 rounded-xl items-center active:bg-red-50"
-            >
-              <Text className="text-error text-body-sm font-bold">Reset Progress</Text>
-            </Pressable>
+        {__DEV__ && (
+          <View className="mx-6 mt-8 mb-10 p-5 bg-surface border border-border-gray rounded-2xl items-center">
+            <Text className="text-body-md text-text-secondary font-bold text-center mb-3">
+              Developer Utilities
+            </Text>
+            <View className="flex-row gap-3 w-full justify-between">
+              <Pressable
+                onPress={() => addXp(5)}
+                className="flex-1 bg-white border border-border-gray py-2.5 px-3 rounded-xl items-center active:bg-gray-50"
+              >
+                <Text className="text-text-primary text-body-sm font-bold">+5 XP</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  resetProgress();
+                  router.replace("/onboarding");
+                }}
+                className="flex-1 bg-white border border-error py-2.5 px-3 rounded-xl items-center active:bg-red-50"
+              >
+                <Text className="text-error text-body-sm font-bold">Reset Progress</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
