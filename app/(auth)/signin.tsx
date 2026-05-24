@@ -139,8 +139,9 @@ export default function SignInScreen() {
   };
 
   const handleGoogleOAuth = async () => {
-    if (!setActive) return;
+    if (!setActive || isLoading) return;
     setErrorMsg("");
+    setIsLoading(true);
     try {
       const { createdSessionId } = await startSSOFlow({
         strategy: "oauth_google",
@@ -152,14 +153,15 @@ export default function SignInScreen() {
     } catch (err: unknown) {
       console.warn("Google login warning/error:", err);
       setErrorMsg(getClerkErrorMessage(err, "Google login failed."));
+    } finally {
+      setIsLoading(false);
     }
   };
 
-
-
   const handleAppleOAuth = async () => {
-    if (!setActive) return;
+    if (!setActive || isLoading) return;
     setErrorMsg("");
+    setIsLoading(true);
     try {
       const { createdSessionId } = await startSSOFlow({
         strategy: "oauth_apple",
@@ -171,6 +173,8 @@ export default function SignInScreen() {
     } catch (err: unknown) {
       console.warn("Apple login warning/error:", err);
       setErrorMsg(getClerkErrorMessage(err, "Apple login failed."));
+    } finally {
+      setIsLoading(false);
     }
   };
 
