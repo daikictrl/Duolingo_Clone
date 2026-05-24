@@ -29,14 +29,20 @@ function InitialLayout() {
   const _hasHydrated = useLearningStore((state) => state._hasHydrated);
   const ph = usePostHog();
 
-  // Identify the user in PostHog when they sign in
+  // Identify the user in PostHog when they sign in, and reset on sign out
   useEffect(() => {
     if (isSignedIn && userId) {
-      ph.identify(userId, {
-        $set_once: {
-          first_sign_in_date: new Date().toISOString(),
-        },
-      });
+      if (ph) {
+        ph.identify(userId, {
+          $set_once: {
+            first_sign_in_date: new Date().toISOString(),
+          },
+        });
+      }
+    } else {
+      if (ph) {
+        ph.reset();
+      }
     }
   }, [isSignedIn, userId, ph]);
 
