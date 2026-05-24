@@ -22,6 +22,19 @@ import * as Linking from "expo-linking";
 
 WebBrowser.maybeCompleteAuthSession();
 
+function getClerkErrorMessage(err: unknown, defaultMessage: string): string {
+  if (err && typeof err === "object" && "errors" in err) {
+    const clerkError = err as { errors?: Array<{ message?: string }> };
+    if (clerkError.errors && clerkError.errors[0] && clerkError.errors[0].message) {
+      return clerkError.errors[0].message;
+    }
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return defaultMessage;
+}
+
 export default function SignUpScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -56,10 +69,9 @@ export default function SignUpScreen() {
         strategy: "email_code",
       });
       setIsModalVisible(true);
-    } catch (err: any) {
-      console.warn("Sign up error:", err.message || err);
-      const message = err.errors?.[0]?.message || "Something went wrong during sign up. Please try again.";
-      setErrorMsg(message);
+    } catch (err: unknown) {
+      console.warn("Sign up error:", err);
+      setErrorMsg(getClerkErrorMessage(err, "Something went wrong during sign up. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -81,10 +93,9 @@ export default function SignUpScreen() {
         console.error("Sign-up attempt not complete:", signUpAttempt);
         setModalError("Sign-up is not complete. Please check the code.");
       }
-    } catch (err: any) {
-      console.warn("Verify code error:", err.message || err);
-      const message = err.errors?.[0]?.message || "Invalid verification code. Please try again.";
-      setModalError(message);
+    } catch (err: unknown) {
+      console.warn("Verify code error:", err);
+      setModalError(getClerkErrorMessage(err, "Invalid verification code. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +109,9 @@ export default function SignUpScreen() {
       await signUp.prepareEmailAddressVerification({
         strategy: "email_code",
       });
-    } catch (err: any) {
-      console.warn("Resend code error:", err.message || err);
-      const message = err.errors?.[0]?.message || "Failed to resend code. Please try again.";
-      setModalError(message);
+    } catch (err: unknown) {
+      console.warn("Resend code error:", err);
+      setModalError(getClerkErrorMessage(err, "Failed to resend code. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -118,9 +128,9 @@ export default function SignUpScreen() {
       if (createdSessionId) {
         await setActive({ session: createdSessionId });
       }
-    } catch (err: any) {
-      console.warn("Google login warning/error:", err.message || err);
-      setErrorMsg(err.errors?.[0]?.message || "Google login failed.");
+    } catch (err: unknown) {
+      console.warn("Google login warning/error:", err);
+      setErrorMsg(getClerkErrorMessage(err, "Google login failed."));
     }
   };
 
@@ -137,9 +147,9 @@ export default function SignUpScreen() {
       if (createdSessionId) {
         await setActive({ session: createdSessionId });
       }
-    } catch (err: any) {
-      console.warn("Apple login warning/error:", err.message || err);
-      setErrorMsg(err.errors?.[0]?.message || "Apple login failed.");
+    } catch (err: unknown) {
+      console.warn("Apple login warning/error:", err);
+      setErrorMsg(getClerkErrorMessage(err, "Apple login failed."));
     }
   };
 
@@ -158,7 +168,10 @@ export default function SignUpScreen() {
         <View className="flex-row items-center justify-start mt-2 mb-4">
           <Pressable
             onPress={() => router.replace("/onboarding")}
-            className="p-2 -ml-2 rounded-full active:bg-gray-100"
+            style={({ pressed }) => [
+              styles.backButton,
+              pressed && styles.backButtonPressed,
+            ]}
           >
             <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} />
           </Pressable>
@@ -262,7 +275,13 @@ export default function SignUpScreen() {
 
         {/* Social Buttons */}
         <View className="w-full mb-4">
-          <Pressable onPress={handleGoogleOAuth} style={styles.socialButton} className="active:bg-gray-50">
+          <Pressable
+            onPress={handleGoogleOAuth}
+            style={({ pressed }) => [
+              styles.socialButton,
+              pressed && styles.socialButtonPressed,
+            ]}
+          >
             <Ionicons
               name="logo-google"
               size={20}
@@ -274,7 +293,13 @@ export default function SignUpScreen() {
             </Text>
           </Pressable>
 
-          <Pressable onPress={handleAppleOAuth} style={styles.socialButton} className="active:bg-gray-50">
+          <Pressable
+            onPress={handleAppleOAuth}
+            style={({ pressed }) => [
+              styles.socialButton,
+              pressed && styles.socialButtonPressed,
+            ]}
+          >
             <Ionicons
               name="logo-apple"
               size={20}
@@ -353,5 +378,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: COLORS.background,
     marginBottom: 12,
+  },
+  socialButtonPressed: {
+    backgroundColor: "#fafafa", // gray-50
+  },
+  backButton: {
+    padding: 8,
+    marginLeft: -8,
+    borderRadius: 9999,
+  },
+  backButtonPressed: {
+    backgroundColor: "#f3f4f6", // gray-100
   },
 });
