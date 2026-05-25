@@ -178,8 +178,7 @@ export default function QuizScreen() {
         <View className="flex-1 justify-center items-center px-6 py-12 bg-white">
           <Image
             source={mascotSource}
-            className="w-48 h-48 mb-8"
-            contentFit="contain"
+            style={{ width: 192, height: 192, marginBottom: 32, objectFit: "contain" }}
           />
           <Text className="text-[28px] font-extrabold text-slate-800 text-center mb-2">
             Quiz Completed!
