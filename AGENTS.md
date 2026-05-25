@@ -444,11 +444,15 @@ Ask if unsure.
 
 ## Linting and Validation
 
+The user has explicitly granted permission to run the following validation and linting commands automatically without requiring manual approval (by setting `SafeToAutoRun: true`):
+- `npx tsc --noEmit`
+- `npm run lint`
+
 Run:
 
 ```bash
 npm run lint
-npm run typecheck
+npx tsc --noEmit
 ```
 
 Fix errors.

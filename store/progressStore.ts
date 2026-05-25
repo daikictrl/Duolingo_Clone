@@ -2,40 +2,36 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export interface LearningState {
+export interface ProgressState {
   selectedLanguageId: string | null;
   setSelectedLanguageId: (id: string | null) => void;
   xp: number;
   streak: number;
-  completedLessonIds: string[];
-  completedFlashcardLessonIds: string[];
-  completedQuizIds: string[];
-  flashcardScores: Record<string, number>;
-  quizScores: Record<string, number>;
+  completedLessonIds: string[]; // for compatibility with legacy lessons
+  completedFlashcardLessonIds: string[]; // completed flashcard lesson IDs
+  completedQuizIds: string[]; // completed quiz session IDs
   
   addXp: (amount: number) => void;
   setStreak: (count: number) => void;
   completeLesson: (lessonId: string, xpReward?: number) => void;
   toggleLessonCompletion: (lessonId: string, xpReward?: number) => void;
-  completeFlashcardLesson: (lessonId: string, xpReward?: number, scorePercentage?: number) => void;
-  completeQuiz: (quizId: string, xpReward?: number, scorePercentage?: number) => void;
+  completeFlashcardLesson: (lessonId: string, xpReward?: number) => void;
+  completeQuiz: (quizId: string, xpReward?: number) => void;
   resetProgress: () => void;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
 }
 
-export const useLearningStore = create<LearningState>()(
+export const useProgressStore = create<ProgressState>()(
   persist(
     (set) => ({
-      selectedLanguageId: "es", // Default language to Spanish
+      selectedLanguageId: "es", // Default language (Spanish)
       setSelectedLanguageId: (id) => set({ selectedLanguageId: id }),
       xp: 0,
       streak: 0,
       completedLessonIds: [],
       completedFlashcardLessonIds: [],
       completedQuizIds: [],
-      flashcardScores: {},
-      quizScores: {},
       
       addXp: (amount) => set((state) => ({ xp: state.xp + amount })),
       setStreak: (count) => set({ streak: count }),
@@ -64,29 +60,22 @@ export const useLearningStore = create<LearningState>()(
         };
       }),
 
-      completeFlashcardLesson: (lessonId, xpReward = 15, scorePercentage = 100) => set((state) => {
-        const isAlreadyCompleted = state.completedFlashcardLessonIds.includes(lessonId);
-        const existingScore = state.flashcardScores[lessonId] || 0;
-        
-        // If they already completed it with a better score, don't update score negatively
-        const newScore = Math.max(existingScore, scorePercentage);
-
+      completeFlashcardLesson: (lessonId, xpReward = 15) => set((state) => {
+        if (state.completedFlashcardLessonIds.includes(lessonId)) {
+          return {};
+        }
         return {
-          completedFlashcardLessonIds: isAlreadyCompleted ? state.completedFlashcardLessonIds : [...state.completedFlashcardLessonIds, lessonId],
-          flashcardScores: { ...state.flashcardScores, [lessonId]: newScore },
+          completedFlashcardLessonIds: [...state.completedFlashcardLessonIds, lessonId],
           xp: state.xp + xpReward
         };
       }),
 
-      completeQuiz: (quizId, xpReward = 15, scorePercentage = 100) => set((state) => {
-        const isAlreadyCompleted = state.completedQuizIds.includes(quizId);
-        const existingScore = state.quizScores[quizId] || 0;
-        
-        const newScore = Math.max(existingScore, scorePercentage);
-
+      completeQuiz: (quizId, xpReward = 15) => set((state) => {
+        if (state.completedQuizIds.includes(quizId)) {
+          return {};
+        }
         return {
-          completedQuizIds: isAlreadyCompleted ? state.completedQuizIds : [...state.completedQuizIds, quizId],
-          quizScores: { ...state.quizScores, [quizId]: newScore },
+          completedQuizIds: [...state.completedQuizIds, quizId],
           xp: state.xp + xpReward
         };
       }),
@@ -98,15 +87,13 @@ export const useLearningStore = create<LearningState>()(
         completedLessonIds: [],
         completedFlashcardLessonIds: [],
         completedQuizIds: [],
-        flashcardScores: {},
-        quizScores: {},
       }),
 
       _hasHydrated: false,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
-      name: "learning-store",
+      name: "progress-store",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         selectedLanguageId: state.selectedLanguageId,
@@ -115,8 +102,6 @@ export const useLearningStore = create<LearningState>()(
         completedLessonIds: state.completedLessonIds,
         completedFlashcardLessonIds: state.completedFlashcardLessonIds,
         completedQuizIds: state.completedQuizIds,
-        flashcardScores: state.flashcardScores,
-        quizScores: state.quizScores,
       }),
       onRehydrateStorage: (state) => {
         return () => {

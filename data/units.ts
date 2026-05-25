@@ -7,7 +7,7 @@ export const unitsList: Unit[] = [
     languageId: "es",
     title: "👋 Unit 1: Basic Greetings & Everyday Nouns",
     description: "Start your Spanish journey! Learn how to say hello, introduce yourself, and master basic nouns like boy, girl, apple, and bread. 🍎🥖",
-    lessonIds: ["es-u1-l1", "es-u1-l2", "es-u1-l3"],
+    lessonIds: ["es-u1-l1", "es-u1-l2", "es-u1-l3", "es-u1-l4"],
     order: 1
   },
   {
@@ -15,7 +15,7 @@ export const unitsList: Unit[] = [
     languageId: "es",
     title: "👨‍👩‍👧‍👦 Unit 2: Family & Common Expressions",
     description: "Extend your conversational skills! Talk about family members, express thanks, and use simple daily phrases.💬",
-    lessonIds: [],
+    lessonIds: ["es-u2-l1", "es-u2-l2", "es-u2-l3", "es-u2-l4"],
     order: 2
   },
 
@@ -25,7 +25,7 @@ export const unitsList: Unit[] = [
     languageId: "fr",
     title: "🥖 Unit 1: French Salutations & Pronouns",
     description: "Take your first steps in French! Learn essential greetings, introduction phrases, and basic masculine and feminine nouns. ✨",
-    lessonIds: ["fr-u1-l1"],
+    lessonIds: ["fr-u1-l1", "fr-u1-l2", "fr-u1-l3"],
     order: 1
   },
   {
@@ -33,7 +33,7 @@ export const unitsList: Unit[] = [
     languageId: "fr",
     title: "🍷 Unit 2: Food & Socializing",
     description: "Discover culinary words and build simple compound sentences in French! 🍽️",
-    lessonIds: [],
+    lessonIds: ["fr-u2-l1", "fr-u2-l2", "fr-u2-l3"],
     order: 2
   },
 
@@ -43,7 +43,7 @@ export const unitsList: Unit[] = [
     languageId: "ja",
     title: "⛩️ Unit 1: The Basics of Japanese",
     description: "Step into Japanese! Learn how to greet others politely, say goodbye, express thanks, and identify common animals. 🐱🐶",
-    lessonIds: ["ja-u1-l1"],
+    lessonIds: ["ja-u1-l1", "ja-u1-l2", "ja-u1-l3"],
     order: 1
   },
   {
@@ -51,7 +51,7 @@ export const unitsList: Unit[] = [
     languageId: "ja",
     title: "🍱 Unit 2: Daily Needs & Common Words",
     description: "Learn to ask for water, express simple desires, and navigate basic conversation blocks. 💧",
-    lessonIds: [],
+    lessonIds: ["ja-u2-l1", "ja-u2-l2", "ja-u2-l3"],
     order: 2
   }
 ];
