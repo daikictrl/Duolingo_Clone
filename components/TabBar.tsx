@@ -24,8 +24,6 @@ const getIconName = (routeKey: string): ComponentProps<typeof Ionicons>["name"] 
       return "home";
     case "learn":
       return "book";
-    case "ai-teacher":
-      return "school";
     case "chat":
       return "chatbubble-ellipses";
     case "profile":
@@ -42,8 +40,6 @@ const getLabel = (routeKey: string): string => {
       return "Home";
     case "learn":
       return "Learn";
-    case "ai-teacher":
-      return "Teacher";
     case "chat":
       return "Chat";
     case "profile":
