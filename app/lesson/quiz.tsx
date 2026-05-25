@@ -360,6 +360,9 @@ export default function QuizScreen() {
                   } else if (isSelected) {
                     borderCol = "border-primary bg-primary/5";
                     textCol = "text-primary";
+                  } else if (isFailed) {
+                    borderCol = "border-error bg-error/5";
+                    textCol = "text-error";
                   }
 
                   return (
@@ -405,6 +408,9 @@ export default function QuizScreen() {
                   } else if (isSelected) {
                     borderCol = "border-primary bg-primary/5";
                     textCol = "text-primary";
+                  } else if (isFailed) {
+                    borderCol = "border-error bg-error/5";
+                    textCol = "text-error";
                   }
 
                   return (

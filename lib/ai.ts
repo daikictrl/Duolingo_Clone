@@ -115,5 +115,19 @@ Verify that "aiText", "userTargetLanguageText" (if not empty), and the "suggesti
     throw new Error("Empty response from OpenRouter API");
   }
 
-  return JSON.parse(responseText.trim()) as AIResponse;
+  const parsed = JSON.parse(responseText.trim());
+
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("Invalid AI response: Expected a JSON object");
+  }
+
+  if (typeof parsed.aiText !== "string" || typeof parsed.translation !== "string") {
+    throw new Error("Invalid AI response: Missing required aiText or translation fields");
+  }
+
+  if (!Array.isArray(parsed.suggestions)) {
+    throw new Error("Invalid AI response: suggestions must be an array");
+  }
+
+  return parsed as AIResponse;
 }

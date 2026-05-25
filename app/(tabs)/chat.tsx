@@ -25,7 +25,7 @@ export default function ChatTab() {
   const activeLanguageName = getLanguageById(activeLangId)?.name || "Spanish";
   const activeLanguageFlag = getLanguageById(activeLangId)?.flag || "https://flagcdn.com/w320/es.png";
 
-  const hasApiKey = !!(process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.EXPO_PUBLIC_OPENAI_API_KEY);
+  const hasApiKey = !!(process.env.EXPO_PUBLIC_OPEN_ROUTER_API_KEY);
 
   // Stop speaking when component unmounts
   useEffect(() => {
@@ -116,11 +116,9 @@ export default function ChatTab() {
         },
       ]);
       setDynamicSuggestions(nextTurn.suggestions);
-      setIsTyping(false);
     } else {
       // Dialogue ends
       Speech.stop().catch(() => {});
-      setIsTyping(false);
       setIsComplete(true);
       addXp(activeScenario?.xpReward || 15);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -129,6 +127,7 @@ export default function ChatTab() {
 
   // Send message handler
   const handleSendMessage = async (customText?: string, translationText?: string) => {
+    if (isTyping) return;
     const textToSend = customText || inputText;
     if (!textToSend.trim() || !activeScenario) return;
 
@@ -222,7 +221,6 @@ export default function ChatTab() {
           },
         ]);
         setDynamicSuggestions(aiResponse.suggestions);
-        setIsTyping(false);
 
         // Check if session completes (standardized to 5 turns)
         if (nextIndex >= 5) {
@@ -233,11 +231,14 @@ export default function ChatTab() {
       } catch (error) {
         console.warn("AI Generation Failed, falling back to static dialogue:", error);
         fallbackToStatic(nextIndex, totalTurns);
+      } finally {
+        setIsTyping(false);
       }
     } else {
       // Demo Mode
       setTimeout(() => {
         fallbackToStatic(nextIndex, totalTurns);
+        setIsTyping(false);
       }, 1500);
     }
   };
@@ -764,9 +765,9 @@ export default function ChatTab() {
             
             <Pressable
               onPress={() => handleSendMessage()}
-              disabled={!inputText.trim()}
+              disabled={!inputText.trim() || isTyping}
               className={`w-11 h-11 rounded-full items-center justify-center ${
-                inputText.trim()
+                inputText.trim() && !isTyping
                   ? "bg-primary border-b-4 border-b-primary-dark active:border-b-0 active:translate-y-0.5"
                   : "bg-slate-200"
               }`}
@@ -774,7 +775,7 @@ export default function ChatTab() {
               <Ionicons
                 name="arrow-up"
                 size={22}
-                color={inputText.trim() ? "white" : COLORS.textSecondary}
+                color={inputText.trim() && !isTyping ? "white" : COLORS.textSecondary}
               />
             </Pressable>
           </View>

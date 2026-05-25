@@ -9,6 +9,7 @@ import { useUser, useAuth } from "@clerk/expo";
 import { useLearningStore } from "@/store/learningStore";
 import { getLanguageById } from "@/data/languages";
 import { COLORS } from "@/theme/colors";
+import { StatCard } from "@/components/StatCard";
 
 export default function ProfileTab() {
   const router = useRouter();
@@ -21,10 +22,18 @@ export default function ProfileTab() {
     xp,
     streak,
     completedLessonIds,
+    completedFlashcardLessonIds = [],
+    completedQuizIds = [],
     resetProgress,
   } = useLearningStore();
 
   const activeLanguage = selectedLanguageId ? getLanguageById(selectedLanguageId) : null;
+
+  const combinedCompletedCount = new Set([
+    ...completedLessonIds,
+    ...completedFlashcardLessonIds,
+    ...completedQuizIds,
+  ]).size;
 
   const joinedDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -87,10 +96,10 @@ export default function ProfileTab() {
       title: "Wise Scholar",
       description: "Complete individual course lessons",
       goal: 5,
-      current: completedLessonIds.length,
+      current: combinedCompletedCount,
       icon: "🎓",
       colorClass: "bg-success",
-      percentage: Math.min((completedLessonIds.length / 5) * 100, 100),
+      percentage: Math.min((combinedCompletedCount / 5) * 100, 100),
     },
   ];
 
@@ -164,67 +173,38 @@ export default function ProfileTab() {
           <Text className="text-h4 text-text-primary font-bold mb-4">Statistics</Text>
           
           <View className="flex-row gap-4 mb-4">
-            {/* Stat 1: Streak */}
-            <View className="flex-1 p-4 card-3d bg-white flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-streak/10 justify-center items-center mr-3">
-                <Ionicons name="flame" size={22} color={COLORS.streak} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-h4 text-text-primary font-black leading-tight">
-                  {streak}
-                </Text>
-                <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wider mt-0.5">
-                  Day Streak
-                </Text>
-              </View>
-            </View>
-
-            {/* Stat 2: Total XP */}
-            <View className="flex-1 p-4 card-3d bg-white flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-primary/10 justify-center items-center mr-3">
-                <Ionicons name="flash" size={22} color={COLORS.primary} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-h4 text-text-primary font-black leading-tight">
-                  {xp}
-                </Text>
-                <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wider mt-0.5">
-                  Total XP
-                </Text>
-              </View>
-            </View>
+            <StatCard
+              iconName="flame"
+              iconColor={COLORS.streak}
+              iconBgClass="bg-streak/10"
+              value={streak}
+              title="Day Streak"
+            />
+            <StatCard
+              iconName="flash"
+              iconColor={COLORS.primary}
+              iconBgClass="bg-primary/10"
+              value={xp}
+              title="Total XP"
+            />
           </View>
 
           <View className="flex-row gap-4">
-            {/* Stat 3: Completed Lessons */}
-            <View className="flex-1 p-4 card-3d bg-white flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-success/10 justify-center items-center mr-3">
-                <Ionicons name="checkmark-circle" size={22} color={COLORS.success} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-h4 text-text-primary font-black leading-tight">
-                  {completedLessonIds.length}
-                </Text>
-                <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wider mt-0.5">
-                  Lessons Done
-                </Text>
-              </View>
-            </View>
-
-            {/* Stat 4: Active Language */}
-            <View className="flex-1 p-4 card-3d bg-white flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-secondary/10 justify-center items-center mr-3">
-                <Ionicons name="globe" size={22} color={COLORS.secondary} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-h4 text-text-primary font-black leading-tight" numberOfLines={1}>
-                  {activeLanguage?.name || "None"}
-                </Text>
-                <Text className="text-[11px] text-text-secondary font-bold uppercase tracking-wider mt-0.5">
-                  Language
-                </Text>
-              </View>
-            </View>
+            <StatCard
+              iconName="checkmark-circle"
+              iconColor={COLORS.success}
+              iconBgClass="bg-success/10"
+              value={combinedCompletedCount}
+              title="Lessons Done"
+            />
+            <StatCard
+              iconName="globe"
+              iconColor={COLORS.secondary}
+              iconBgClass="bg-secondary/10"
+              value={activeLanguage?.name || "None"}
+              title="Language"
+              numberOfLines={1}
+            />
           </View>
         </View>
 

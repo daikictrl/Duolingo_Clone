@@ -74,7 +74,7 @@ export const useLearningStore = create<LearningState>()(
         return {
           completedFlashcardLessonIds: isAlreadyCompleted ? state.completedFlashcardLessonIds : [...state.completedFlashcardLessonIds, lessonId],
           flashcardScores: { ...state.flashcardScores, [lessonId]: newScore },
-          xp: state.xp + xpReward
+          xp: state.xp + (isAlreadyCompleted ? 0 : xpReward)
         };
       }),
 
@@ -87,7 +87,7 @@ export const useLearningStore = create<LearningState>()(
         return {
           completedQuizIds: isAlreadyCompleted ? state.completedQuizIds : [...state.completedQuizIds, quizId],
           quizScores: { ...state.quizScores, [quizId]: newScore },
-          xp: state.xp + xpReward
+          xp: state.xp + (isAlreadyCompleted ? 0 : xpReward)
         };
       }),
       

@@ -57,7 +57,7 @@ export const usePronunciationStore = create<PronunciationState>((set, get) => ({
       if (currentRecording) {
         try {
           if (currentRecording.isRecording) {
-            currentRecording.stop();
+            await currentRecording.stop();
           }
         } catch (e) {}
       }
@@ -92,9 +92,7 @@ export const usePronunciationStore = create<PronunciationState>((set, get) => ({
 
     try {
       set({ isRecording: false });
-      recording.stop();
-      // wait a tiny bit to ensure file is finalized
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await recording.stop();
       const uri = recording.uri;
       
       // Reset audio mode so playback can work properly on iOS speaker
@@ -278,7 +276,7 @@ Respond with ONLY a valid JSON object matching this exact structure:
             }
 
             // Simple Levenshtein grading
-            const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+            const normalize = (s: string) => s.normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
             const t1 = normalize(targetText);
             const t2 = normalize(finalTranscription);
             
@@ -408,7 +406,7 @@ Respond with ONLY a valid JSON object matching this exact structure:
     if (recording) {
       try {
         if (recording.isRecording) {
-          recording.stop();
+          await recording.stop();
         }
       } catch (e) {
         // Already stopped
