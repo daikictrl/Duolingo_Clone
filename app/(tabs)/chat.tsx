@@ -57,6 +57,20 @@ export default function ChatTab() {
   }[]>([]);
 
   const scrollViewRef = useRef<ScrollView>(null);
+  const isMountedRef = useRef(true);
+  const demoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track mount status for async safety
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (demoTimeoutRef.current) {
+        clearTimeout(demoTimeoutRef.current);
+        demoTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Auto-scroll to end of chat when messages or typing state changes
   useEffect(() => {
@@ -196,6 +210,8 @@ export default function ChatTab() {
           textToSend.trim()
         );
 
+        if (!isMountedRef.current) return;
+
         // Update user message text and translation if translated from English to target language
         setMessages((prev) =>
           prev.map((msg) => {
@@ -230,13 +246,14 @@ export default function ChatTab() {
         }
       } catch (error) {
         console.warn("AI Generation Failed, falling back to static dialogue:", error);
-        fallbackToStatic(nextIndex, totalTurns);
+        if (isMountedRef.current) fallbackToStatic(nextIndex, totalTurns);
       } finally {
-        setIsTyping(false);
+        if (isMountedRef.current) setIsTyping(false);
       }
     } else {
       // Demo Mode
-      setTimeout(() => {
+      demoTimeoutRef.current = setTimeout(() => {
+        if (!isMountedRef.current) return;
         fallbackToStatic(nextIndex, totalTurns);
         setIsTyping(false);
       }, 1500);

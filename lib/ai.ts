@@ -129,5 +129,12 @@ Verify that "aiText", "userTargetLanguageText" (if not empty), and the "suggesti
     throw new Error("Invalid AI response: suggestions must be an array");
   }
 
+  const validSuggestions = parsed.suggestions.every(
+    (s: unknown) => s && typeof s === "object" && typeof (s as Record<string, unknown>).text === "string"
+  );
+  if (!validSuggestions) {
+    throw new Error("Invalid AI response: each suggestion must have a string 'text' field");
+  }
+
   return parsed as AIResponse;
 }

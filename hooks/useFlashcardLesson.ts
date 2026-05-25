@@ -30,9 +30,8 @@ export function useFlashcardLesson(lessonId: string | undefined) {
   }, [lessonId, lesson, startLesson, resetLesson]);
 
   const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-      const index = viewableItems[0].index;
-      useLessonStore.setState({ currentIndex: index });
+    if (viewableItems.length > 0 && typeof viewableItems[0].index === "number") {
+      useLessonStore.setState({ currentIndex: viewableItems[0].index });
     }
   }).current;
 
@@ -69,7 +68,7 @@ export function useFlashcardLesson(lessonId: string | undefined) {
           }
         });
 
-        const averageScore = totalScore / cards.length;
+        const averageScore = cards.length > 0 ? totalScore / cards.length : 0;
         const earnedXp = Math.max(0, Math.floor(activeLesson.xpReward * (averageScore / 100)));
 
         setFinalXp(earnedXp);
