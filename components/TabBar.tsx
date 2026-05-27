@@ -1,7 +1,7 @@
 import React, { useEffect, ComponentProps } from "react";
 import { View, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from "react-native";
 import { Text } from "@/components/tw";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,7 +18,7 @@ import { RouteProp, ParamListBase } from "@react-navigation/native";
 const circleSize = 48;
 
 // Icon mappings based on route name
-const getIconName = (routeKey: string): ComponentProps<typeof Ionicons>["name"] => {
+const getIconName = (routeKey: string): string => {
   switch (routeKey) {
     case "index":
       return "home";
@@ -26,6 +26,8 @@ const getIconName = (routeKey: string): ComponentProps<typeof Ionicons>["name"] 
       return "book";
     case "chat":
       return "chatbubble-ellipses";
+    case "ai-teacher":
+      return "brain";
     case "profile":
       return "person";
     default:
@@ -42,6 +44,8 @@ const getLabel = (routeKey: string): string => {
       return "Learn";
     case "chat":
       return "Chat";
+    case "ai-teacher":
+      return "Teacher";
     case "profile":
       return "Profile";
     default:
@@ -106,11 +110,19 @@ const TabItem = ({
       <View style={styles.tabItemContainer}>
         {/* Animated Icon */}
         <Animated.View style={[styles.iconWrapper, animatedIconStyle]}>
-          <Ionicons
-            name={iconName}
-            size={22}
-            color={isFocused ? "#FFFFFF" : "#8E9CAE"}
-          />
+          {baseIconName === "brain" ? (
+            <MaterialCommunityIcons
+              name="brain"
+              size={24}
+              color={isFocused ? "#FFFFFF" : "#8E9CAE"}
+            />
+          ) : (
+            <Ionicons
+              name={iconName}
+              size={22}
+              color={isFocused ? "#FFFFFF" : "#8E9CAE"}
+            />
+          )}
         </Animated.View>
 
         {/* Animated Label */}

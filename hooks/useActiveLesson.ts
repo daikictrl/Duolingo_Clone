@@ -7,7 +7,7 @@ import { Unit, Lesson } from "@/types/learning";
 export function getActiveUnitAndLesson(
   getUnitsByLanguage: (langId: string) => Unit[],
   getLessonsByUnit: (unitId: string) => Lesson[],
-  completedLessonIds: string[],
+
   selectedLanguageId: string | null
 ): { activeUnit: Unit | null; activeLesson: Lesson | null; isActiveCompleted: boolean } {
   const units = selectedLanguageId ? getUnitsByLanguage(selectedLanguageId) : [];
@@ -17,7 +17,7 @@ export function getActiveUnitAndLesson(
   if (selectedLanguageId) {
     for (const unit of units) {
       const unitLessons = getLessonsByUnit(unit.id);
-      const incomplete = unitLessons.find((lesson) => !completedLessonIds.includes(lesson.id));
+      const incomplete = unitLessons[0]; // Without lesson completion, just pick the first lesson of the unit
       if (incomplete) {
         activeUnit = unit;
         activeLesson = incomplete;
@@ -35,7 +35,7 @@ export function getActiveUnitAndLesson(
     }
   }
 
-  const isActiveCompleted = activeLesson ? completedLessonIds.includes(activeLesson.id) : false;
+  const isActiveCompleted = false; // Always false since completion is removed
   return { activeUnit, activeLesson, isActiveCompleted };
 }
 
@@ -46,13 +46,13 @@ export function useActiveLesson(
   getUnitsByLanguage: (langId: string) => Unit[],
   getLessonsByUnit: (unitId: string) => Lesson[]
 ): { activeUnit: Unit | null; activeLesson: Lesson | null; isActiveCompleted: boolean } {
-  const completedLessonIds = useLearningStore((state) => state.completedLessonIds);
+
   const selectedLanguageId = useLearningStore((state) => state.selectedLanguageId);
 
   return getActiveUnitAndLesson(
     getUnitsByLanguage,
     getLessonsByUnit,
-    completedLessonIds,
+
     selectedLanguageId
   );
 }

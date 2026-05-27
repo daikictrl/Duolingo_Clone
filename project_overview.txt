@@ -1,0 +1,108 @@
+================================================================================
+                        VEXORA AI: LANGUAGE LEARNING APP
+                               PROJECT OVERVIEW
+================================================================================
+
+Vexora AI is a playful, interactive language learning application (similar to 
+Duolingo) that lets you learn new languages through simple lessons, dynamic 
+quizzes, and conversation practice. It has your personal AI language coach, 
+Vexora, built right in to chat with you and help you practice speaking and 
+listening naturally.
+
+
+--------------------------------------------------------------------------------
+1. CORE APP FLOW (HOW A LEARNER EXPERIENCES THE APP)
+--------------------------------------------------------------------------------
+
+* Getting Started:
+  When you open the app, you are welcomed by a simple onboarding screen. You can
+  instantly create an account or sign in. Next, you select the path language you 
+  want to learn (Spanish, French, or Japanese).
+
+* Daily Dashboard (Home):
+  This is your control center. Here, you see:
+  - Your Flag: The language you are currently practicing.
+  - Streak Counter: A fire symbol tracking how many days in a row you have 
+    practiced. If you practice, it grows; if you miss a day, it resets.
+  - Daily Goal Card: Shows your daily XP (Experience Points) goal progress (e.g. 
+    aiming for 20 XP a day) with a progress bar and a visual treasure chest.
+  - Continue Learning: A prominent button that shows your current active lesson 
+    and lets you jump right back into practice.
+
+* The Learning Hub (Learn Tab):
+  This tab organizes your structured exercises. You can toggle between:
+  - Flashcards: Practice specific vocabulary words. You swipe and tap cards to 
+    see translations, hear the correct pronunciation, and tap a microphone to 
+    practice saying the word. The app checks if your accent is correct. If you 
+    mispronounce a word (under 50% score), the app transcribes exactly what it 
+    sounded like you said and displays a helpful correction to guide your accent.
+  - Quizzes: Test your skills across different categories. You face a variety 
+    of question formats (like multiple-choice, matching pairs, translation, and 
+    listening) with an animated mascot celebrating when you pass a quiz.
+
+* AI Chat Coach (Chat Tab):
+  Simulate real-life conversations (like ordering at a cafe or checking in at 
+  an airport). 
+  - Vexora writes to you in the target language.
+  - You can instantly translate her messages or listen to them out loud.
+  - To make typing easy, the app displays dynamic "Quick Reply Suggestions" 
+    at the bottom of the screen. You can tap a suggestion to instantly reply, 
+    complete the conversation, and earn +15 XP.
+
+* Real-Time Voice Calls (AI Teacher Tab) - *LATEST UPDATE*:
+  This tab allows you to practice speaking live in a conversational, hands-free 
+  voice session. 
+  - Study Room: You enter a cozy virtual room where your teacher mascot stands 
+    ready to practice with you.
+  - Initiating a Call: Tap the phone icon to start a voice call.
+  - Speaking & Listening: Vexora speaks to you. A floating speech bubble displays
+    what she said, and you can press the Speaker button to hear it again.
+  - Subtitles & Translations: You can toggle translations on or off to help you 
+    understand what she's saying. During the listening phase, the translation 
+    is shown directly inside the bubble to guide you as you prepare to respond.
+  - Dynamic Mascot Expressions: Vexora's facial expressions change dynamically based 
+    on your pronunciation! While explaining concepts or listening, she appears in 
+    focused teacher mode. When you speak, she evaluates you: she smiles and waves 
+    when you score high (75% or above), shows a slightly disappointed face if you 
+    score moderately (50% to 74%), and looks completely sad if you score low 
+    (under 50%).
+  - Interactive Microphone: When it's your turn to reply, tap the microphone to 
+    speak. The app transcribes and grades your pronunciation.
+  - Dialogue Rounds: You practice through a 3-round conversation.
+  - Session Results: After 3 rounds, you see a summary. If your average score is 
+    60% or higher, you pass and earn a "+30 XP" bonus! If not, the app shows the 
+    sad mascot alongside a round-by-round score breakdown so you know where you 
+    need more practice, and lets you retry or exit.
+
+* User Profile & Settings (Profile Tab):
+  Here you can see your total stats (active language, lessons completed, total XP, 
+  and daily streak) and view your achievements (Streak Flame, XP Collector, 
+  Wise Scholar). You can also open the Settings menu to switch your target path 
+  language, reset all learning progress to start fresh, or sign out.
+
+
+--------------------------------------------------------------------------------
+2. BEHIND THE SCENES (EXPLAINED FOR A NON-TECHNICAL PERSON)
+--------------------------------------------------------------------------------
+
+* Smart Pronunciation Assessment:
+  The app is smart enough to detect silent audio or background noise. If you submit 
+  silence, it won't let you cheat and will record a score of zero, encouraging 
+  honest practice.
+
+* Detailed Pronunciation Feedback:
+  Rather than simply grading answers as pass/fail, the speech engine calculates an 
+  exact percentage match. For lower scores (under 50%), it tells you exactly what 
+  it heard (e.g. showing "It sounds like you said 'bonjor' instead of 'bonjour'") 
+  so you know exactly which syllables to adjust.
+
+* Premium Audio Transcriptions:
+  The app uses the latest premium speech models ("Universal 3 Pro" and 
+  "Universal 2") to accurately transcribe what you say. It is designed to be 
+  incredibly supportive, meaning it forgives minor accent quirks or close 
+  phonetic sounds (like "manger" vs. "mangé" in French) so you don't get 
+  penalized for tiny differences.
+
+* Local Progress Memory:
+  Your scores, XP progress, and learning achievements are securely saved on your 
+  device, ensuring your learning journey is never lost when you close the app.

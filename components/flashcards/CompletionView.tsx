@@ -1,5 +1,6 @@
 import React from "react";
-import { SafeAreaView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text } from "@/components/tw";
 import { Image } from "@/components/tw/image";
 import { Button3D } from "@/components/Button3D";
@@ -30,7 +31,7 @@ export function CompletionView({
       <View className="flex-1 justify-center items-center px-6 py-12 bg-white">
         <Image
           source={mascotSource}
-          style={{ width: 192, height: 192, marginBottom: 32, objectFit: "contain" }}
+          style={{ width: 199, height: 199, marginBottom: 32, objectFit: "contain" }}
         />
         <Text className="text-[28px] font-extrabold text-slate-800 text-center mb-2">
           Lesson Completed!

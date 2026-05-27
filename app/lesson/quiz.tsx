@@ -40,6 +40,18 @@ export default function QuizScreen() {
   const [matchedPairs, setMatchedPairs] = useState<string[]>([]); // format: ["left:right"]
   const [failedMatch, setFailedMatch] = useState<{ left: string; right: string } | null>(null);
 
+  const currentQuestionSafe = activeQuiz ? activeQuiz.questions[currentQuestionIndex] : null;
+
+  const { shuffledLeft, shuffledRight } = React.useMemo(() => {
+    if (currentQuestionSafe?.type === "MATCH_PAIRS" && currentQuestionSafe.pairs) {
+      return {
+        shuffledLeft: [...currentQuestionSafe.pairs.map((p) => p.left)].sort(() => Math.random() - 0.5),
+        shuffledRight: [...currentQuestionSafe.pairs.map((p) => p.right)].sort(() => Math.random() - 0.5),
+      };
+    }
+    return { shuffledLeft: [], shuffledRight: [] };
+  }, [currentQuestionSafe]);
+
   useEffect(() => {
     if (quiz) {
       startQuiz(quiz);
@@ -322,8 +334,8 @@ export default function QuizScreen() {
 
       case "MATCH_PAIRS":
         // Extract left and right items
-        const leftItems = currentQuestion.pairs?.map((p) => p.left) || [];
-        const rightItems = currentQuestion.pairs?.map((p) => p.right) || [];
+        const leftItems = shuffledLeft;
+        const rightItems = shuffledRight;
 
         return (
           <View className="w-full">

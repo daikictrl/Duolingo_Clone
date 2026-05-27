@@ -21,7 +21,7 @@ export default function ProfileTab() {
     selectedLanguageId,
     xp,
     streak,
-    completedLessonIds,
+
     completedFlashcardLessonIds = [],
     completedQuizIds = [],
     resetProgress,
@@ -30,7 +30,6 @@ export default function ProfileTab() {
   const activeLanguage = selectedLanguageId ? getLanguageById(selectedLanguageId) : null;
 
   const combinedCompletedCount = new Set([
-    ...completedLessonIds,
     ...completedFlashcardLessonIds,
     ...completedQuizIds,
   ]).size;
@@ -85,11 +84,11 @@ export default function ProfileTab() {
       id: "xp",
       title: "XP Collector",
       description: "Earn experience points from lessons and practice",
-      goal: 50,
+      goal: 100,
       current: xp,
       icon: "⚡",
       colorClass: "bg-primary",
-      percentage: Math.min((xp / 50) * 100, 100),
+      percentage: Math.min((xp / 100) * 100, 100),
     },
     {
       id: "lessons",

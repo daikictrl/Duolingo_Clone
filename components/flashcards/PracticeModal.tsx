@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, SafeAreaView, ActivityIndicator } from "react-native";
+import { Modal, ActivityIndicator } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Pressable } from "@/components/tw";
 import { Ionicons } from "@expo/vector-icons";
 import { Button3D } from "@/components/Button3D";

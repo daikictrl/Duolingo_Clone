@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, ScrollView, Platform, KeyboardAvoidingView } from "react-native";
+import { StyleSheet, ScrollView, Platform, KeyboardAvoidingView, Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, Pressable, TextInput } from "@/components/tw";
 import { Image } from "@/components/tw/image";
@@ -59,6 +59,19 @@ export default function ChatTab() {
   const scrollViewRef = useRef<ScrollView>(null);
   const isMountedRef = useRef(true);
   const demoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const [suggestionHeight, setSuggestionHeight] = useState(0);
+
+  const shouldHideSuggestions = inputText.trim().length > 0 || isTyping;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: shouldHideSuggestions ? (suggestionHeight || 150) : 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [shouldHideSuggestions, suggestionHeight]);
 
   // Track mount status for async safety
   useEffect(() => {
@@ -327,8 +340,9 @@ export default function ChatTab() {
           style={{ flex: 1, backgroundColor: "#FFFFFF" }}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[1]}
         >
-          {/* Header */}
+          {/* Child 0: Header - scrolls normally */}
           <View className="px-6 py-6 border-b border-slate-100 items-center bg-[#F8FAFC]">
             <View className="w-16 h-16 bg-primary/10 rounded-full justify-center items-center mb-3">
               <Ionicons name="chatbubble-ellipses" size={32} color={COLORS.primary} />
@@ -347,8 +361,8 @@ export default function ChatTab() {
             </View>
           </View>
 
-          {/* Quick Language Practice Selector */}
-          <View className="px-6 mt-6">
+          {/* Child 1: Language Selector - STICKY on scroll */}
+          <View className="px-6 pt-5 pb-2 bg-white">
             <Text className="text-caption font-bold text-slate-400 uppercase tracking-widest mb-3">
               Practice Path Language
             </Text>
@@ -390,8 +404,8 @@ export default function ChatTab() {
             </View>
           </View>
 
-          {/* Scenarios List */}
-          <View className="px-6 mt-8">
+          {/* Child 2: Scenarios List - scrolls beneath sticky header */}
+          <View className="px-6 mt-4">
             <Text className="text-caption font-bold text-slate-400 uppercase tracking-widest mb-2">
               Select a conversation scenario
             </Text>
@@ -555,13 +569,17 @@ export default function ChatTab() {
             </View>
           </View>
 
-          {/* Bubble Message Stream */}
-          <ScrollView
-            ref={scrollViewRef}
-            style={{ flex: 1, backgroundColor: "#FFFFFF" }}
-            contentContainerStyle={styles.chatScrollContent}
-            showsVerticalScrollIndicator={false}
-          >
+          {/* Bubble Message Stream and Suggestions Wrapper */}
+          <View style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+            <ScrollView
+              ref={scrollViewRef}
+              style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+              contentContainerStyle={[
+                styles.chatScrollContent,
+                { paddingBottom: suggestionHeight ? suggestionHeight + 20 : 20 }
+              ]}
+              showsVerticalScrollIndicator={false}
+            >
             {messages.map((message) => {
               const isAI = message.sender === "ai";
               const isSpeakerPlaying = playingMessageId === message.id;
@@ -726,10 +744,24 @@ export default function ChatTab() {
           </ScrollView>
 
           {/* Quick suggestions area */}
-          {!isTyping && suggestions.length > 0 && (
-            <View className="bg-[#F8FAFC] border-t border-slate-100 py-3">
-              <View className="px-4 mb-2 flex-row items-center justify-between">
-                <Text className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+          <Animated.View
+            onLayout={(e) => {
+              const h = e.nativeEvent.layout.height;
+              if (h > 0) setSuggestionHeight(h);
+            }}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              transform: [{ translateY: slideAnim }],
+              backgroundColor: "#F8FAFC",
+            }}
+          >
+            {suggestions.length > 0 && (
+              <View className="border-t border-slate-100 py-3">
+                <View className="px-4 mb-2 flex-row items-center justify-between">
+                  <Text className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
                   Quick Reply Suggestions
                 </Text>
                 <Text className="text-[9px] font-bold text-primary/70">
@@ -759,7 +791,9 @@ export default function ChatTab() {
                 ))}
               </ScrollView>
             </View>
-          )}
+            )}
+          </Animated.View>
+          </View>
 
           {/* Bottom Chat Bar input */}
           <View className="p-4 border-t border-slate-100 bg-white flex-row items-center">
