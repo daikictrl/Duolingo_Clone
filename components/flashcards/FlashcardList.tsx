@@ -1,5 +1,6 @@
 import React from "react";
-import { FlatList, ViewToken, View } from "react-native";
+import { FlatList, ViewToken } from "react-native";
+import { View } from "@/components/tw";
 import { Flashcard } from "@/data/flashcardLessons";
 import { FlashcardCard } from "./FlashcardCard";
 

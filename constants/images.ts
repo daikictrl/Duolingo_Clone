@@ -8,6 +8,8 @@ import earth from "@/assets/images/earth.png";
 import palace from "@/assets/images/palace.png";
 import streakFire from "@/assets/images/streak-fire.png";
 import treasure from "@/assets/images/treasure.png";
+import mascotTeacher from "@/assets/images/mascot-teacher.png";
+import roomBg from "@/assets/images/room-bg.png";
 
 export const images = {
   icon,
@@ -21,4 +23,6 @@ export const images = {
   palace,
   streakFire,
   treasure,
+  mascotTeacher,
+  roomBg,
 } as const;

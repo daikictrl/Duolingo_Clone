@@ -12,6 +12,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="learn" />
+      <Tabs.Screen name="ai-teacher" />
       <Tabs.Screen name="chat" />
       <Tabs.Screen name="profile" />
     </Tabs>

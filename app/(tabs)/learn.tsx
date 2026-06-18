@@ -93,13 +93,14 @@ export default function LearnTab() {
         </Pressable>
       </View>
 
-      {/* Main Content ScrollView */}
+      {/* Main Content ScrollView with sticky tab switcher */}
       <ScrollView
         className="flex-1 bg-white"
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[1]}
       >
-        {/* Top Image (Palace) blending seamlessly, no surrounding box */}
+        {/* Child 0: Top Image (Palace) - scrolls normally */}
         <View className="w-full justify-center items-center py-4 bg-white">
           <Image
             source={images.palace}
@@ -108,51 +109,53 @@ export default function LearnTab() {
           />
         </View>
 
-        {/* 2-Tab Pill Switcher */}
-        <View className="mx-6 p-1 bg-surface rounded-2xl flex-row items-center border border-border-gray shadow-sm">
-          <Pressable
-            onPress={() => setActiveTab("flashcards")}
-            className={`flex-1 py-3 rounded-xl items-center justify-center flex-row gap-1.5 transition-all will-change-variable ${
-              activeTab === "flashcards" ? "bg-white shadow-sm border border-border-gray" : ""
-            }`}
-          >
-            <Ionicons
-              name="book"
-              size={16}
-              color={activeTab === "flashcards" ? COLORS.primary : COLORS.textSecondary}
-            />
-            <Text
-              className={`text-body-xs font-black uppercase tracking-wider ${
-                activeTab === "flashcards" ? "text-primary font-extrabold" : "text-text-secondary font-bold"
+        {/* Child 1: 2-Tab Pill Switcher - STICKY on scroll */}
+        <View className="px-6 py-2 bg-white">
+          <View className="p-1 bg-surface rounded-2xl flex-row items-center border border-border-gray shadow-sm">
+            <Pressable
+              onPress={() => setActiveTab("flashcards")}
+              className={`flex-1 py-3 rounded-xl items-center justify-center flex-row gap-1.5 transition-all will-change-variable ${
+                activeTab === "flashcards" ? "bg-white shadow-sm border border-border-gray" : ""
               }`}
             >
-              Flashcards
-            </Text>
-          </Pressable>
+              <Ionicons
+                name="book"
+                size={16}
+                color={activeTab === "flashcards" ? COLORS.primary : COLORS.textSecondary}
+              />
+              <Text
+                className={`text-body-xs font-black uppercase tracking-wider ${
+                  activeTab === "flashcards" ? "text-primary font-extrabold" : "text-text-secondary font-bold"
+                }`}
+              >
+                Flashcards
+              </Text>
+            </Pressable>
 
-          <Pressable
-            onPress={() => setActiveTab("quizzes")}
-            className={`flex-1 py-3 rounded-xl items-center justify-center flex-row gap-1.5 transition-all will-change-variable ${
-              activeTab === "quizzes" ? "bg-white shadow-sm border border-border-gray" : ""
-            }`}
-          >
-            <Ionicons
-              name="extension-puzzle"
-              size={16}
-              color={activeTab === "quizzes" ? COLORS.primary : COLORS.textSecondary}
-            />
-            <Text
-              className={`text-body-xs font-black uppercase tracking-wider ${
-                activeTab === "quizzes" ? "text-primary font-extrabold" : "text-text-secondary font-bold"
+            <Pressable
+              onPress={() => setActiveTab("quizzes")}
+              className={`flex-1 py-3 rounded-xl items-center justify-center flex-row gap-1.5 transition-all will-change-variable ${
+                activeTab === "quizzes" ? "bg-white shadow-sm border border-border-gray" : ""
               }`}
             >
-              Quizzes
-            </Text>
-          </Pressable>
+              <Ionicons
+                name="extension-puzzle"
+                size={16}
+                color={activeTab === "quizzes" ? COLORS.primary : COLORS.textSecondary}
+              />
+              <Text
+                className={`text-body-xs font-black uppercase tracking-wider ${
+                  activeTab === "quizzes" ? "text-primary font-extrabold" : "text-text-secondary font-bold"
+                }`}
+              >
+                Quizzes
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
-        {/* Tab content conditional rendering */}
-        <View className="mx-6 mt-6">
+        {/* Child 2: Tab content - scrolls beneath sticky header */}
+        <View className="mx-6 mt-4">
           {activeTab === "flashcards" && (
             <View className="gap-4">
               {flashcardLessons.map((lesson) => {

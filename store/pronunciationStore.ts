@@ -41,6 +41,19 @@ const getSpeechLangCode = (langCode: string): string => {
   }
 };
 
+const getLanguageName = (langCode: string): string => {
+  switch (langCode.toLowerCase().split("-")[0]) {
+    case "es":
+      return "Spanish";
+    case "fr":
+      return "French";
+    case "ja":
+      return "Japanese";
+    default:
+      return "the target language";
+  }
+};
+
 export const usePronunciationStore = create<PronunciationState>((set, get) => ({
   isRecording: false,
   recording: null,
@@ -120,6 +133,38 @@ export const usePronunciationStore = create<PronunciationState>((set, get) => ({
 
     set({ isEvaluating: true, error: null });
 
+    // Local scoring helper
+    const computePronunciationScore = (target: string, actual: string): number => {
+      const normalize = (s: string) => s.normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+      const t1 = normalize(target);
+      const t2 = normalize(actual);
+      
+      const editDistance = (s1: string, s2: string) => {
+        const costs: number[] = [];
+        for (let i = 0; i <= s1.length; i++) {
+          let lastValue = i;
+          for (let j = 0; j <= s2.length; j++) {
+            if (i === 0) costs[j] = j;
+            else if (j > 0) {
+              let newValue = costs[j - 1];
+              if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+              }
+              costs[j - 1] = lastValue;
+              lastValue = newValue;
+            }
+          }
+          if (i > 0) costs[s2.length] = lastValue;
+        }
+        return costs[s2.length];
+      };
+
+      const longer = Math.max(t1.length, t2.length);
+      if (longer === 0) return 0;
+      const similarity = (longer - editDistance(t1, t2)) / longer;
+      return Math.floor(similarity * 100);
+    };
+
     try {
       // Check duration to see if they spoke at all
       const duration = recordingStartTime ? (Date.now() - recordingStartTime) : 0;
@@ -143,26 +188,19 @@ export const usePronunciationStore = create<PronunciationState>((set, get) => ({
         throw new Error("API_KEY_MISSING");
       }
 
-      const prompt = `You are a strict, objective language teacher evaluating pronunciation. 
-
-Target phrase: "${targetText}"
+      const prompt = `You are a strict and highly accurate AI audio transcription engine.
 Language: "${langCode}"
 
-TASK: Listen to the audio and transcribe exactly what you hear. Then grade the pronunciation out of 100.
+Your only task is to transcribe exactly what is spoken in the audio.
 
-STRICT RULES:
-1. FIRST, determine if there is any human speech in the audio. If it is mostly silence, static, background noise, or breathing, set "speechDetected" to false.
-2. If "speechDetected" is false, you MUST set "score" to 0 and "transcription" to "". DO NOT HALLUCINATE OR GUESS.
-3. If "speechDetected" is true, evaluate how closely the spoken words match the target phrase.
-4. If the user speaks completely different words than the target phrase, score MUST be 0.
-5. Do not just assume the user said the target phrase. Transcribe exactly what is in the audio.
+ANTI-HALLUCINATION RULES:
+1. Listen carefully. If the audio is mostly silence, background noise, static, or breathing, you MUST set "speechDetected" to false and "transcription" to "".
+2. Do not guess or make up words. Transcribe ONLY what you actually hear.
 
-Respond with ONLY a valid JSON object matching this exact structure:
+Respond ONLY with a JSON object. No markdown formatting.
 {
-  "speechDetected": true, // false if silence or noise
-  "transcription": "What was actually spoken in the audio",
-  "score": 85, // 0 to 100
-  "feedback": "One short sentence in English of feedback."
+  "speechDetected": true, // false if silence, noise, or unintelligible
+  "transcription": "The exact words spoken in the audio, or empty string"
 }`;
 
       let lastError: any = null;
@@ -219,112 +257,114 @@ Respond with ONLY a valid JSON object matching this exact structure:
       }
 
       if (lastError && !textResult) {
+        const groqKey = process.env.EXPO_PUBLIC_GROK_WHISPER_API;
         const assemblyKey = process.env.EXPO_PUBLIC_ASSEMBLY_AI_API_KEY;
-        if (assemblyKey && recordingUri) {
-          console.warn("Gemini failed. Falling back to AssemblyAI transcription...");
+        
+        if ((groqKey || assemblyKey) && recordingUri) {
+          console.warn("Gemini failed. Falling back to fast transcription...");
           try {
-            // Upload to AssemblyAI
-            const uploadRes = await FileSystem.uploadAsync("https://api.assemblyai.com/v2/upload", recordingUri, {
-              httpMethod: "POST",
-              headers: {
-                Authorization: assemblyKey,
-              },
-            });
-            const uploadUrl = JSON.parse(uploadRes.body).upload_url;
+            let finalTranscription = "";
+            
+            // Try Groq Whisper first (synchronous, ~1 second)
+            if (groqKey) {
+              try {
+                console.log("[pronunciationStore] Using Groq Whisper fallback...");
+                let mappedLang = langCode.slice(0, 2).toLowerCase();
+                const supportedLanguages = ["en", "es", "fr", "de", "it", "pt", "nl", "hi", "ja", "zh", "fi", "ko", "pl", "ru", "tr", "uk", "vi"];
+                if (!supportedLanguages.includes(mappedLang)) mappedLang = "en";
 
-            // Transcribe
-            // Map common language codes (AssemblyAI uses 'en', 'es', 'fr', etc.)
-            let mappedLang = langCode.slice(0, 2).toLowerCase();
-            const supportedLanguages = ["en", "es", "fr", "de", "it", "pt", "nl", "hi", "ja", "zh", "fi", "ko", "pl", "ru", "tr", "uk", "vi"];
-            if (!supportedLanguages.includes(mappedLang)) {
-               mappedLang = "en"; // default to english if not supported by AssemblyAI
+                const formData = new FormData();
+                formData.append("file", {
+                  uri: recordingUri,
+                  type: "audio/m4a",
+                  name: "recording.m4a",
+                } as any);
+                formData.append("model", "whisper-large-v3-turbo");
+                // Explicitly specify target language to ensure pronunciation is transcribed in that language (not translated to English)
+                formData.append("language", mappedLang);
+                formData.append("response_format", "json");
+
+                const groqRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${groqKey}` },
+                  body: formData,
+                });
+
+                if (!groqRes.ok) throw new Error(`Groq error: ${groqRes.status}`);
+                const groqData = await groqRes.json();
+                finalTranscription = groqData.text || "";
+              } catch (groqErr: any) {
+                console.warn("[pronunciationStore] Groq failed:", groqErr.message);
+                // Fall through to AssemblyAI
+              }
             }
 
-            const transcriptRes = await fetch("https://api.assemblyai.com/v2/transcript", {
-              method: "POST",
-              headers: {
-                Authorization: assemblyKey,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                audio_url: uploadUrl,
-                language_code: mappedLang,
-              }),
-            });
-            const transcriptData = await transcriptRes.json();
-            const transcriptId = transcriptData.id;
-
-            // Poll for completion
-            let status = transcriptData.status;
-            let finalTranscription = "";
-            let attempts = 0;
-            while (status !== "completed" && status !== "error" && attempts < 15) {
-              await new Promise(resolve => setTimeout(resolve, 1500));
-              const checkRes = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
+            // If Groq didn't produce a result, try AssemblyAI
+            if (!finalTranscription && assemblyKey) {
+              console.log("[pronunciationStore] Using AssemblyAI fallback...");
+              const uploadRes = await FileSystem.uploadAsync("https://api.assemblyai.com/v2/upload", recordingUri, {
+                httpMethod: "POST",
                 headers: { Authorization: assemblyKey },
               });
-              const checkData = await checkRes.json();
-              status = checkData.status;
-              if (status === "completed") {
-                finalTranscription = checkData.text || "";
+              const uploadUrl = JSON.parse(uploadRes.body).upload_url;
+
+              let mappedLang = langCode.slice(0, 2).toLowerCase();
+              const supportedLanguages = ["en", "es", "fr", "de", "it", "pt", "nl", "hi", "ja", "zh", "fi", "ko", "pl", "ru", "tr", "uk", "vi"];
+              if (!supportedLanguages.includes(mappedLang)) mappedLang = "en";
+
+              const transcriptRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+                method: "POST",
+                headers: {
+                  Authorization: assemblyKey,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ audio_url: uploadUrl, language_code: mappedLang }),
+              });
+              const transcriptData = await transcriptRes.json();
+              const transcriptId = transcriptData.id;
+
+              let status = transcriptData.status;
+              let attempts = 0;
+              while (status !== "completed" && status !== "error" && attempts < 30) {
+                if (attempts > 0) await new Promise(r => setTimeout(r, 500));
+                const checkRes = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
+                  headers: { Authorization: assemblyKey },
+                });
+                const checkData = await checkRes.json();
+                status = checkData.status;
+                if (status === "completed") finalTranscription = checkData.text || "";
+                attempts++;
               }
-              attempts++;
-            }
-
-            if (status !== "completed") {
-              throw new Error("AssemblyAI transcription failed or timed out.");
-            }
-
-            // Simple Levenshtein grading
-            const normalize = (s: string) => s.normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
-            const t1 = normalize(targetText);
-            const t2 = normalize(finalTranscription);
-            
-            const editDistance = (s1: string, s2: string) => {
-              const costs: number[] = [];
-              for (let i = 0; i <= s1.length; i++) {
-                let lastValue = i;
-                for (let j = 0; j <= s2.length; j++) {
-                  if (i === 0) costs[j] = j;
-                  else if (j > 0) {
-                    let newValue = costs[j - 1];
-                    if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                      newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                    }
-                    costs[j - 1] = lastValue;
-                    lastValue = newValue;
-                  }
-                }
-                if (i > 0) costs[s2.length] = lastValue;
-              }
-              return costs[s2.length];
-            };
-
-            const longer = Math.max(t1.length, t2.length);
-            let score = 0;
-            if (longer > 0) {
-              const similarity = (longer - editDistance(t1, t2)) / longer;
-              score = Math.floor(similarity * 100);
-            } else {
-               score = 0;
+              if (status !== "completed") throw new Error("AssemblyAI timed out.");
             }
 
             const isSpeechDetected = finalTranscription.trim().length > 0;
-            if (!isSpeechDetected) {
-               score = 0;
+            let score = 0;
+            let feedback = "We couldn't hear recognizable speech.";
+
+            if (isSpeechDetected) {
+              score = computePronunciationScore(targetText, finalTranscription);
+              if (score >= 80) {
+                feedback = "Great pronunciation!";
+              } else if (score >= 50) {
+                feedback = "Good try! Keep practicing to get it perfect.";
+              } else {
+                const langName = getLanguageName(langCode);
+                feedback = `It sounds like you said "${finalTranscription}" instead of "${targetText}". Make sure you are pronouncing it in ${langName}!`;
+              }
             }
 
             const fallbackResult: PronunciationResult = {
               transcription: finalTranscription,
               score: score,
-              feedback: score > 80 ? "Great pronunciation!" : "Keep practicing, you'll get it!",
+              feedback: feedback,
             };
 
             set({ isEvaluating: false, evaluationResult: fallbackResult });
             return fallbackResult;
 
           } catch (err: any) {
-            console.error("AssemblyAI fallback failed:", err.message);
+            console.error("Fallback transcription failed:", err.message);
             throw new Error("I am listening to too many students right now! Please take a deep breath, wait about 30 seconds, and try again.");
           }
         }
@@ -341,9 +381,47 @@ Respond with ONLY a valid JSON object matching this exact structure:
         throw new Error("Empty response from AI API");
       }
 
-      const parsedResult: PronunciationResult = JSON.parse(textResult.trim());
-      set({ isEvaluating: false, evaluationResult: parsedResult });
-      return parsedResult;
+      let cleanJson = textResult.trim();
+      if (cleanJson.startsWith('```json')) cleanJson = cleanJson.substring(7);
+      else if (cleanJson.startsWith('```')) cleanJson = cleanJson.substring(3);
+      if (cleanJson.endsWith('```')) cleanJson = cleanJson.substring(0, cleanJson.length - 3);
+      cleanJson = cleanJson.trim();
+
+      const parsedResult: PronunciationResult & { speechDetected?: boolean } = JSON.parse(cleanJson);
+      
+      let finalTranscription = parsedResult.transcription || "";
+      if (parsedResult.speechDetected === false) {
+        finalTranscription = "";
+      }
+
+      const isUnintelligible = finalTranscription.trim() === "";
+      let score = 0;
+      let feedback = "";
+
+      if (isUnintelligible) {
+        score = 0;
+        finalTranscription = "";
+        feedback = "Sorry, I did not catch that. Please speak clearly into the microphone and try again.";
+      } else {
+        score = computePronunciationScore(targetText, finalTranscription);
+        if (score >= 80) {
+          feedback = "Great pronunciation!";
+        } else if (score >= 50) {
+          feedback = "Good try! Keep practicing to get it perfect.";
+        } else {
+          const langName = getLanguageName(langCode);
+          feedback = `It sounds like you said "${finalTranscription}" instead of "${targetText}". Make sure you are pronouncing it in ${langName}!`;
+        }
+      }
+
+      const finalResult: PronunciationResult = {
+        transcription: finalTranscription,
+        score,
+        feedback,
+      };
+
+      set({ isEvaluating: false, evaluationResult: finalResult });
+      return finalResult;
 
     } catch (err: any) {
       if (err.message === "DURATION_TOO_SHORT") {

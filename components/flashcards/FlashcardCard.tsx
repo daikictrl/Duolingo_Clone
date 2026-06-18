@@ -61,7 +61,7 @@ export function FlashcardCard({
         </View>
 
         {isRevealed ? (
-          <View className="items-center justify-center w-full mt-6 px-4 py-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <View className="items-center justify-center w-full mt-6 px-4 pt-5 pb-20 bg-slate-50 rounded-2xl border border-slate-100">
             <Text className="text-[20px] font-bold text-slate-700 text-center mb-1">
               {item.translation}
             </Text>

@@ -78,7 +78,7 @@ export default function FlashcardScreen() {
     );
   }
 
-  const cardHeight = height * 0.7;
+  const cardHeight = height - 190; // Fit between header and footer
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -103,11 +103,15 @@ export default function FlashcardScreen() {
 
       <View className="px-6 py-6 border-t border-slate-100 bg-white shadow-lg">
         <Button3D
-          variant={isCurrentRevealed ? "success" : "primary"}
+          variant={isCurrentRevealed ? "primary" : "outline"}
           size="lg"
           onPress={() => handleNextAction(handlePlayAudio)}
         >
-          {isCurrentRevealed ? "CONTINUE" : "CHECK CARD"}
+          {!isCurrentRevealed
+            ? "REVEAL TRANSLATION"
+            : currentIndex < cards.length - 1
+            ? "GOT IT • NEXT"
+            : "COMPLETE LESSON"}
         </Button3D>
       </View>
 
